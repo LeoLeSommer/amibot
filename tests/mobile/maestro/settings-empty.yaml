@@ -1,0 +1,12 @@
+appId: ${APP_ID}
+name: Server settings on first launch
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Server"
+- assertVisible: "Server URL"
+- assertVisible:
+    id: server-url-input
+- assertVisible: "Not connected"
+- assertVisible:
+    id: server-connect

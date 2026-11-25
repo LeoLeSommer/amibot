@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.94.0
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: backend
+      - run: cargo fmt --manifest-path backend/Cargo.toml --all -- --check
+      - run: cargo clippy --manifest-path backend/Cargo.toml --workspace --all-targets -- -D warnings
+      - run: cargo test --manifest-path backend/Cargo.toml --workspace
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx expo lint
+      - run: npx tsc --noEmit
+      - run: npm run format:check
+      - run: npm test
+      - run: npx expo export --platform web
+
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Hurl 8
+        run: cargo install hurl --version '^8' --locked
+      - run: bash tests/api/run.sh

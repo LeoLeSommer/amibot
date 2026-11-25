@@ -1,0 +1,23 @@
+url: ${BASE_URL}
+name: Empty server and settings
+---
+- launchApp:
+    clearState: true
+- assertVisible: "No modules installed"
+- assertVisible:
+    id: home-empty-title
+- tapOn:
+    id: settings-open
+- assertVisible: "Server"
+- assertVisible: "Server URL"
+- assertVisible:
+    id: settings-title
+- assertVisible:
+    id: server-url-input
+- assertVisible:
+    id: server-status
+- tapOn:
+    id: server-disconnect
+- assertVisible: "Not connected"
+- assertVisible:
+    id: server-connect

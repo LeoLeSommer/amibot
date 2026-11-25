@@ -1,0 +1,48 @@
+{
+  "app": {
+    "name": "Amibot"
+  },
+  "common": {
+    "back": "Back",
+    "reload": "Reload",
+    "retry": "Retry"
+  },
+  "home": {
+    "emptyBody": "Connect another module to extend this server.",
+    "emptyTitle": "No modules installed",
+    "noUiBody": "The installed modules do not render anything in this slot.",
+    "noUiTitle": "No interface contributions"
+  },
+  "notFound": {
+    "back": "Back to start",
+    "body": "This screen does not exist.",
+    "title": "Not found"
+  },
+  "settings": {
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "errors": {
+      "urlInvalid": "Enter a valid http or https server URL.",
+      "urlRequired": "Enter a server URL."
+    },
+    "open": "Open settings",
+    "status": {
+      "coreVersion": "Core version: {{version}}",
+      "error": "Cannot reach the server.",
+      "loading": "Connecting…",
+      "modules_one": "{{count}} module",
+      "modules_other": "{{count}} modules",
+      "name": "Server: {{name}}",
+      "notConnected": "Not connected"
+    },
+    "title": "Server",
+    "urlLabel": "Server URL",
+    "urlPlaceholder": "http://localhost:3000"
+  },
+  "update": {
+    "back": "Back",
+    "body": "Update the app to keep using this server.",
+    "reload": "Reload",
+    "title": "Update required"
+  }
+}

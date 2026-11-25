@@ -1,0 +1,38 @@
+name: amibot-e2e
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: amibot
+      POSTGRES_PASSWORD: amibot
+      POSTGRES_DB: amibot
+    ports:
+      - "55433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amibot -d amibot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build:
+      context: ..
+      args:
+        EXPO_PUBLIC_APP_LOCALE: en
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://amibot:amibot@db:5432/amibot
+      AMIBOT_SERVER_NAME: Amibot E2E
+      AMIBOT_ALLOWED_ORIGINS: http://localhost:8081
+      RUST_LOG: info
+    ports:
+      - "3200:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s

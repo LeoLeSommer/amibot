@@ -1,0 +1,10 @@
+[package]
+name = "amibot-runtime"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+amibot-core = { path = "../amibot-core" }
+axum.workspace = true
+sea-orm.workspace = true

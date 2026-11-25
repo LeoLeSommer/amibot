@@ -1,0 +1,12 @@
+.git
+.github
+plans
+tests
+deploy
+frontend/node_modules
+frontend/dist
+frontend/.expo
+frontend/ios
+frontend/android
+backend/target
+**/.DS_Store

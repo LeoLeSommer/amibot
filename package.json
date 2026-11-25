@@ -1,0 +1,21 @@
+{
+  "name": "amibot",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test:backend": "cargo test --manifest-path backend/Cargo.toml --workspace",
+    "test:arch": "cargo test --manifest-path backend/Cargo.toml --test architecture",
+    "fmt:backend": "cargo fmt --manifest-path backend/Cargo.toml --all -- --check",
+    "clippy:backend": "cargo clippy --manifest-path backend/Cargo.toml --workspace --all-targets -- -D warnings",
+    "test:frontend": "npm --prefix frontend test",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "typecheck:frontend": "npm --prefix frontend run typecheck",
+    "format:frontend": "npm --prefix frontend run format",
+    "format:frontend:check": "npm --prefix frontend run format:check",
+    "build:web": "npm --prefix frontend run build:web",
+    "test:api": "bash tests/api/run.sh",
+    "test:web": "bash tests/web/run.sh",
+    "test:mobile:android": "bash tests/mobile/run.sh android",
+    "test:mobile:ios": "bash tests/mobile/run.sh ios"
+  }
+}

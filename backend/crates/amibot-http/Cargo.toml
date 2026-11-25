@@ -1,0 +1,11 @@
+[package]
+name = "amibot-http"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+axum.workspace = true
+amibot-core = { path = "../amibot-core" }
+serde_json.workspace = true
+tracing.workspace = true

@@ -1,0 +1,48 @@
+{
+  "app": {
+    "name": "Amibot"
+  },
+  "common": {
+    "back": "Retour",
+    "reload": "Recharger",
+    "retry": "Réessayer"
+  },
+  "home": {
+    "emptyBody": "Connectez un autre module pour étendre ce serveur.",
+    "emptyTitle": "Aucun module installé",
+    "noUiBody": "Les modules installés ne rendent rien dans cet emplacement.",
+    "noUiTitle": "Aucune contribution d'interface"
+  },
+  "notFound": {
+    "back": "Retour au début",
+    "body": "Cet écran n'existe pas.",
+    "title": "Introuvable"
+  },
+  "settings": {
+    "connect": "Connecter",
+    "disconnect": "Déconnecter",
+    "errors": {
+      "urlInvalid": "Saisissez une URL de serveur http ou https valide.",
+      "urlRequired": "Saisissez l'URL du serveur."
+    },
+    "open": "Ouvrir les réglages",
+    "status": {
+      "coreVersion": "Version du cœur : {{version}}",
+      "error": "Impossible de joindre le serveur.",
+      "loading": "Connexion…",
+      "modules_one": "{{count}} module",
+      "modules_other": "{{count}} modules",
+      "name": "Serveur : {{name}}",
+      "notConnected": "Non connecté"
+    },
+    "title": "Serveur",
+    "urlLabel": "URL du serveur",
+    "urlPlaceholder": "http://localhost:3000"
+  },
+  "update": {
+    "back": "Retour",
+    "body": "Mettez à jour l'application pour continuer à utiliser ce serveur.",
+    "reload": "Recharger",
+    "title": "Mise à jour requise"
+  }
+}
