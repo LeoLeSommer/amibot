@@ -16,6 +16,7 @@ module.exports = {
     "src/features/**/services/**/*.ts",
     "src/features/**/schema.ts",
     "src/shared/components/slots/{contributions,catalogue}.ts",
+    "src/shared/theme/{appearanceStorage,resolveColorScheme,themeCssVariables}.ts",
     "!src/**/*.types.ts",
     "!src/**/__tests__/**",
   ],

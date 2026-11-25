@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Platform, Text, View } from "react-native";
 
-import { Palette } from "@/constants/theme";
 import { slotCatalogue } from "@/shared/components/slots/catalogue";
 import {
   renderableContributions,
@@ -9,6 +8,7 @@ import {
 } from "@/shared/components/slots/contributions";
 import Slot from "@/shared/components/slots/Slot";
 import { Button, ButtonText } from "@/shared/components/ui/button";
+import useTheme from "@/shared/theme/useTheme";
 
 import useManifest from "../hooks/useManifest";
 
@@ -28,11 +28,12 @@ export default function ModuleSurface() {
   const { t } = useTranslation();
   const { data, isError, isLoading, refetch } = useManifest();
   const platform = currentPlatform();
+  const { colors } = useTheme();
 
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color={Palette.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }

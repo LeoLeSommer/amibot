@@ -3,21 +3,22 @@ import { Settings } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Pressable, View } from "react-native";
 
-import { Palette } from "@/constants/theme";
 import ModuleSurface from "@/features/server/components/ModuleSurface";
 import useManifest from "@/features/server/hooks/useManifest";
 import useServerConfig from "@/features/server/hooks/useServerConfig";
 import AppShell from "@/shared/components/appShell/AppShell";
+import useTheme from "@/shared/theme/useTheme";
 
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { serverUrl, isLoading } = useServerConfig();
   const { data } = useManifest();
+  const { colors } = useTheme();
 
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color={Palette.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -37,7 +38,7 @@ export default function HomeScreen() {
           className="rounded-lg p-2"
           onPress={() => router.push("/settings")}
         >
-          <Settings color={Palette.foreground} size={20} />
+          <Settings color={colors.foreground} size={20} />
         </Pressable>
       }
     >

@@ -9,14 +9,13 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 
 import ManifestSlotBridge from "@/features/server/components/ManifestSlotBridge";
 import { ServerConfigProvider } from "@/features/server/provider";
 import { setClientUpdateRequiredHandler } from "@/lib/api/client";
 import { queryClient } from "@/lib/queryClient";
-import { GluestackUIProvider } from "@/shared/components/ui/gluestack-ui-provider";
+import ThemeProvider from "@/shared/theme/ThemeProvider";
 
 import "@/global.css";
 import "@/i18n";
@@ -56,19 +55,18 @@ function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ServerConfigProvider>
-        <ManifestSlotBridge>
-          <GluestackUIProvider mode="light">
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <ServerConfigProvider>
+          <ManifestSlotBridge>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="home" options={{ animation: "fade" }} />
               <Stack.Screen name="update" options={{ gestureEnabled: false }} />
             </Stack>
-            <StatusBar style="dark" />
-          </GluestackUIProvider>
-        </ManifestSlotBridge>
-      </ServerConfigProvider>
-    </QueryClientProvider>
+          </ManifestSlotBridge>
+        </ServerConfigProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 

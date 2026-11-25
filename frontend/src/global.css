@@ -14,8 +14,10 @@
   --font-display-bold: "Archivo-Bold";
 }
 
-/* ─── Theme: design tokens (light only) ───────────────────────────
-   :root — light palette, shared across all platforms.
+/* ─── Theme: design tokens ───────────────────────────────────────
+   :root — bootstrap palette (default theme, light), shared across all
+   platforms. ThemeProvider overrides these tokens at runtime for the active
+   theme and color mode.
    Tokens use the shadcn-style "R G B" triplet convention. */
 @layer theme {
   :root {

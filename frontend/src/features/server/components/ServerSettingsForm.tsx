@@ -6,6 +6,7 @@ import { Text, TextInput, View } from "react-native";
 
 import { normalizeServerUrl } from "@/lib/api/serverUrl";
 import { Button, ButtonText } from "@/shared/components/ui/button";
+import useTheme from "@/shared/theme/useTheme";
 
 import useServerConfig from "../hooks/useServerConfig";
 import { serverUrlSchema, type ServerUrlFormValues } from "../schema";
@@ -13,6 +14,7 @@ import { serverUrlSchema, type ServerUrlFormValues } from "../schema";
 export default function ServerSettingsForm() {
   const { t } = useTranslation();
   const { serverUrl, isLoading, connect, disconnect } = useServerConfig();
+  const { colors } = useTheme();
 
   const {
     control,
@@ -58,7 +60,7 @@ export default function ServerSettingsForm() {
               onChangeText={onChange}
               value={value}
               placeholder={t("settings.urlPlaceholder")}
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={colors.mutedForeground}
             />
           )}
         />

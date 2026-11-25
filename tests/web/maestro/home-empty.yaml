@@ -8,6 +8,7 @@ name: Empty server and settings
     id: home-empty-title
 - tapOn:
     id: settings-open
+- assertVisible: "Settings"
 - assertVisible: "Server"
 - assertVisible: "Server URL"
 - assertVisible:
@@ -16,6 +17,19 @@ name: Empty server and settings
     id: server-url-input
 - assertVisible:
     id: server-status
+- assertVisible: "Appearance"
+- assertVisible:
+    id: appearance-settings
+- assertVisible:
+    id: theme-option-default
+- assertVisible:
+    id: mode-option-auto
+- tapOn:
+    id: theme-option-ocean
+- tapOn:
+    id: mode-option-dark
+- assertVisible:
+    id: settings-title
 - tapOn:
     id: server-disconnect
 - assertVisible: "Not connected"

@@ -80,7 +80,9 @@ Mobile flows live in `tests/mobile/maestro/` and use `appId: app.amibot`.
   `EXPO_PUBLIC_APP_LOCALE=en` pinned.
 - Keep `testID` values stable: `home-empty-title`, `settings-open`,
   `settings-title`, `server-url-input`, `server-connect`, `server-disconnect`,
-  `server-status`.
+  `server-status`, `appearance-settings`, `theme-option-default`,
+  `theme-option-ocean`, `theme-option-forest`, `mode-option-auto`,
+  `mode-option-light`, `mode-option-dark`.
 - Do not run every Maestro flow for a small change; run the affected flow.
 - Shell scripts are validated with `bash -n` and, when available,
   `shellcheck`.

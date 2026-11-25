@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Palette } from "@/constants/theme";
 import Slot from "@/shared/components/slots/Slot";
+import useTheme from "@/shared/theme/useTheme";
 
 export type AppShellProps = {
   title: string;
@@ -18,8 +18,13 @@ export default function AppShell({
   children,
   rightActions,
 }: AppShellProps) {
+  const { colors } = useTheme();
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
+      edges={["top", "left", "right"]}
+    >
       <View className="flex-row items-center gap-3 border-b border-border bg-card px-4 py-3">
         <Text
           testID={titleTestID}
@@ -41,6 +46,5 @@ export default function AppShell({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Palette.background,
   },
 });

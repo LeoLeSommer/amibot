@@ -5,7 +5,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "amibot",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "backgroundColor": "#F8FAFC",
     "ios": {
       "bundleIdentifier": "app.amibot"
@@ -22,7 +22,10 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F8FAFC"
+          "backgroundColor": "#F8FAFC",
+          "dark": {
+            "backgroundColor": "#0B1220"
+          }
         }
       ],
       "expo-localization"

@@ -19,6 +19,21 @@
     "title": "Not found"
   },
   "settings": {
+    "appearance": {
+      "modeLabel": "Color mode",
+      "modes": {
+        "dark": "Dark",
+        "light": "Light",
+        "system": "Auto"
+      },
+      "themeLabel": "Theme",
+      "themes": {
+        "default": "Default",
+        "forest": "Forest",
+        "ocean": "Ocean"
+      },
+      "title": "Appearance"
+    },
     "connect": "Connect",
     "disconnect": "Disconnect",
     "errors": {
@@ -26,6 +41,9 @@
       "urlRequired": "Enter a server URL."
     },
     "open": "Open settings",
+    "server": {
+      "title": "Server"
+    },
     "status": {
       "coreVersion": "Core version: {{version}}",
       "error": "Cannot reach the server.",
@@ -35,7 +53,7 @@
       "name": "Server: {{name}}",
       "notConnected": "Not connected"
     },
-    "title": "Server",
+    "title": "Settings",
     "urlLabel": "Server URL",
     "urlPlaceholder": "http://localhost:3000"
   },

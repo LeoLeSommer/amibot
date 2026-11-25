@@ -19,6 +19,21 @@
     "title": "Introuvable"
   },
   "settings": {
+    "appearance": {
+      "modeLabel": "Mode de couleur",
+      "modes": {
+        "dark": "Sombre",
+        "light": "Clair",
+        "system": "Auto"
+      },
+      "themeLabel": "Thème",
+      "themes": {
+        "default": "Défaut",
+        "forest": "Forêt",
+        "ocean": "Océan"
+      },
+      "title": "Apparence"
+    },
     "connect": "Connecter",
     "disconnect": "Déconnecter",
     "errors": {
@@ -26,6 +41,9 @@
       "urlRequired": "Saisissez l'URL du serveur."
     },
     "open": "Ouvrir les réglages",
+    "server": {
+      "title": "Serveur"
+    },
     "status": {
       "coreVersion": "Version du cœur : {{version}}",
       "error": "Impossible de joindre le serveur.",
@@ -35,7 +53,7 @@
       "name": "Serveur : {{name}}",
       "notConnected": "Non connecté"
     },
-    "title": "Serveur",
+    "title": "Réglages",
     "urlLabel": "URL du serveur",
     "urlPlaceholder": "http://localhost:3000"
   },

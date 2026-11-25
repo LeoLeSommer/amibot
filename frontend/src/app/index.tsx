@@ -1,16 +1,17 @@
 import { Redirect } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
 
-import { Palette } from "@/constants/theme";
 import useServerConfig from "@/features/server/hooks/useServerConfig";
+import useTheme from "@/shared/theme/useTheme";
 
 export default function IndexScreen() {
   const { serverUrl, isLoading } = useServerConfig();
+  const { colors } = useTheme();
 
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-background">
-        <ActivityIndicator size="large" color={Palette.primary} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
