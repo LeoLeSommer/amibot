@@ -51,7 +51,7 @@ export default function ServerSettingsForm() {
             <TextInput
               testID="server-url-input"
               nativeID="server-url-input"
-              className="rounded-lg border border-border bg-card px-3 py-2 text-base text-foreground"
+              className="rounded-xl border border-border bg-card px-3 py-2 text-base text-foreground"
               autoCapitalize="none"
               autoCorrect={false}
               inputMode="url"

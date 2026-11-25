@@ -113,8 +113,19 @@ useXxx()`); import them directly. Destructure object/array returns at the call
 
 ## UI
 
+- Read `frontend/DESIGN.md` before any visual change; it is the source of
+  truth for the Liquid Glass direction and its anti-patterns.
 - NativeWind classes come from `src/global.css`; JS-only colors from
   `constants/theme.ts`.
+- Chrome uses `GlassSurface` variants (`navigation`, `floating`, `overlay`)
+  instead of ad-hoc blur, opacity, or border classes. Blur, opacity, border,
+  shadow, and radius values live in `constants/theme.ts`.
+- Never nest glass surfaces and never apply glass to content cards, list rows,
+  settings sections, or inputs. Slot contributions rendered inside the glass
+  header must return plain content.
+- Reduced transparency falls back to an opaque surface; reduced motion disables
+  stack transitions. Use `useAccessibilityPreferences`, and do not animate
+  glass decoration.
 - Gluestack vendor files under `src/shared/components/ui/**` stay untouched
   except when upgrading the vendor source.
 - No drawer, sidebar, tabs, or auth until their modules land.

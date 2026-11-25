@@ -16,6 +16,7 @@ import { ServerConfigProvider } from "@/features/server/provider";
 import { setClientUpdateRequiredHandler } from "@/lib/api/client";
 import { queryClient } from "@/lib/queryClient";
 import ThemeProvider from "@/shared/theme/ThemeProvider";
+import useAccessibilityPreferences from "@/shared/theme/useAccessibilityPreferences";
 
 import "@/global.css";
 import "@/i18n";
@@ -24,6 +25,7 @@ SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ duration: 300, fade: true });
 
 function RootLayout() {
+  const { reduceMotion } = useAccessibilityPreferences();
   const [fontsLoaded, fontError] = useFonts({
     "Archivo-SemiBold": Archivo_600SemiBold,
     "Archivo-Bold": Archivo_700Bold,
@@ -59,8 +61,16 @@ function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <ServerConfigProvider>
           <ManifestSlotBridge>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="home" options={{ animation: "fade" }} />
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: reduceMotion ? "none" : "default",
+              }}
+            >
+              <Stack.Screen
+                name="home"
+                options={{ animation: reduceMotion ? "none" : "fade" }}
+              />
               <Stack.Screen name="update" options={{ gestureEnabled: false }} />
             </Stack>
           </ManifestSlotBridge>

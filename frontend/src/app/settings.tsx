@@ -21,6 +21,7 @@ export default function SettingsScreen() {
     <AppShell
       title={t("settings.title")}
       titleTestID="settings-title"
+      scrollable
       rightActions={
         serverUrl ? (
           <Button
@@ -44,6 +45,7 @@ export default function SettingsScreen() {
           <ServerSettingsForm />
           <ServerStatus />
         </View>
+        <View className="h-px bg-border" />
         <AppearanceSettings />
         <Slot name="app.settings" />
       </View>

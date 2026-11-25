@@ -19,7 +19,7 @@ export default function AppearanceSettings() {
     <View
       testID="appearance-settings"
       nativeID="appearance-settings"
-      className="gap-4 rounded-lg border border-border bg-card p-4"
+      className="gap-4"
     >
       <Text className="text-base font-sans-semibold text-foreground">
         {t("settings.appearance.title")}

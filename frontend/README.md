@@ -2,7 +2,8 @@
 
 Expo SDK 57 / React Native 0.86 / Expo Router client for web, iOS, and Android.
 NativeWind 5 + Tailwind 4 provide styling; Gluestack UI v5 supplies the vendored
-button primitives.
+button primitives. The visual direction and glass material rules live in
+[`DESIGN.md`](./DESIGN.md).
 
 ## Commands
 

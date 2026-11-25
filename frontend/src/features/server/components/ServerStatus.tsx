@@ -10,11 +10,7 @@ export default function ServerStatus() {
   const { data, isError, isLoading } = useManifest();
 
   return (
-    <View
-      testID="server-status"
-      nativeID="server-status"
-      className="gap-1 rounded-lg border border-border bg-card p-4"
-    >
+    <View testID="server-status" nativeID="server-status" className="gap-1">
       {!serverUrl ? (
         <Text className="text-sm text-muted-foreground">
           {t("settings.status.notConnected")}

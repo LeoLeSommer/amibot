@@ -208,3 +208,66 @@ export const Spacing = {
 } as const;
 
 export const MaxContentWidth = 800;
+
+/**
+ * Blur tints for `expo-blur`. Each tint adds its own color layer on top of the
+ * blur, so the overlay opacity below is intentionally subtle.
+ */
+export const GlassTint = {
+  light: "systemThinMaterialLight",
+  dark: "systemThinMaterialDark",
+} as const;
+
+export type GlassVariant = "navigation" | "floating" | "overlay";
+
+export type GlassVariantTokens = {
+  blurIntensity: number;
+  radius: number;
+  backgroundOpacity: { light: number; dark: number };
+  borderOpacity: { light: number; dark: number };
+  borderEdges: "bottom" | "all";
+  shadowOpacity: { light: number; dark: number };
+  shadowRadius: number;
+  elevation: number;
+};
+
+/**
+ * Material tokens for glass chrome. Tune opacity and intensity on iOS,
+ * Android, and web; all three must stay readable in every palette.
+ */
+export const glassVariants: Record<GlassVariant, GlassVariantTokens> = {
+  navigation: {
+    blurIntensity: 45,
+    radius: 0,
+    backgroundOpacity: { light: 0.78, dark: 0.66 },
+    borderOpacity: { light: 0.55, dark: 0.4 },
+    borderEdges: "bottom",
+    shadowOpacity: { light: 0, dark: 0 },
+    shadowRadius: 0,
+    elevation: 0,
+  },
+  floating: {
+    blurIntensity: 40,
+    radius: 22,
+    backgroundOpacity: { light: 0.72, dark: 0.58 },
+    borderOpacity: { light: 0.55, dark: 0.4 },
+    borderEdges: "all",
+    shadowOpacity: { light: 0.1, dark: 0.3 },
+    shadowRadius: 18,
+    elevation: 6,
+  },
+  overlay: {
+    blurIntensity: 60,
+    radius: 24,
+    backgroundOpacity: { light: 0.86, dark: 0.76 },
+    borderOpacity: { light: 0.6, dark: 0.45 },
+    borderEdges: "all",
+    shadowOpacity: { light: 0.14, dark: 0.4 },
+    shadowRadius: 24,
+    elevation: 16,
+  },
+};
+
+export const Layout = {
+  headerHeight: 56,
+} as const;
