@@ -22,13 +22,21 @@ use serde_json::json;
 
 pub use settings::{ChatSettings, ModelSetting};
 
-/// A boxed stream of upstream content deltas. Text is already extracted from
-/// the provider's SSE `data:` frames by `provider.rs`.
-pub type DeltaStream = Pin<Box<dyn Stream<Item = Result<String, ProviderError>> + Send>>;
+/// One piece of upstream content. The provider's SSE `data:` frames are split
+/// into reasoning and answer text by `provider.rs`; `stream.rs` maps them onto
+/// AI SDK v6 reasoning and text parts.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Delta {
+    Reasoning(String),
+    Text(String),
+}
+
+/// A boxed stream of upstream content deltas.
+pub type DeltaStream = Pin<Box<dyn Stream<Item = Result<Delta, ProviderError>> + Send>>;
 
 /// Typed upstream failure kinds. Only these names and numeric statuses are
 /// logged; upstream URLs, keys, and error bodies are never exposed.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ProviderError {
     Request,
     Status(u16),

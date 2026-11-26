@@ -25,6 +25,7 @@ import { gradientStyle, shadowStyle } from "@/shared/theme/depthStyles";
 import useAccessibilityPreferences from "@/shared/theme/useAccessibilityPreferences";
 import useTheme from "@/shared/theme/useTheme";
 
+import { MessageReasoning } from "./reasoning";
 import { useBlankSize } from "./useBlank";
 import { useUserMessageAnimation } from "./userAnimation";
 
@@ -153,7 +154,7 @@ export const MessageContent = memo(function MessageContent({
 
   return (
     <View
-      className={`flex w-fit min-w-0 flex-col justify-center gap-2 self-start py-3 text-base ${className || ""}`}
+      className={`flex w-full min-w-0 flex-col justify-center gap-2 self-start py-3 text-base ${className || ""}`}
     >
       {children}
     </View>
@@ -163,12 +164,18 @@ export const MessageContent = memo(function MessageContent({
 export type MessageResponseProps = {
   message: UIMessage;
   thinkingLabel?: string;
+  reasoningLabel?: string;
+  reasoningStreamingLabel?: string;
+  reasoningToggleLabel?: string;
   streaming?: boolean;
 };
 
 export const MessageResponse = memo(function MessageResponse({
   message,
   thinkingLabel = "Thinking...",
+  reasoningLabel = "Reasoning",
+  reasoningStreamingLabel = "Reasoning in progress",
+  reasoningToggleLabel = "Show or hide reasoning",
   streaming = false,
 }: MessageResponseProps) {
   const { colors } = useTheme();
@@ -345,8 +352,11 @@ export const MessageResponse = memo(function MessageResponse({
 
   const hasText = message.parts.some((part) => part.type === "text");
   const hasFile = message.parts.some((part) => part.type === "file");
+  const hasReasoning = message.parts.some(
+    (part) => part.type === "reasoning" && part.text.length > 0,
+  );
 
-  if (!hasText && !hasFile) {
+  if (!hasText && !hasFile && !hasReasoning) {
     return <Text className="text-muted-foreground">{thinkingLabel}</Text>;
   }
 
@@ -369,6 +379,25 @@ export const MessageResponse = memo(function MessageResponse({
             <Markdown key={index} style={markdownStyle}>
               {part.text || ""}
             </Markdown>
+          );
+        }
+
+        if (part.type === "reasoning") {
+          if (!part.text) {
+            return null;
+          }
+
+          const partStreaming = part.state === "streaming";
+
+          return (
+            <MessageReasoning
+              key={index}
+              text={part.text}
+              streaming={partStreaming}
+              label={reasoningLabel}
+              streamingLabel={reasoningStreamingLabel}
+              toggleLabel={reasoningToggleLabel}
+            />
           );
         }
 

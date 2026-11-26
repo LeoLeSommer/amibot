@@ -163,6 +163,9 @@ export default function ChatPanel() {
             message={item}
             streaming={isStreaming}
             thinkingLabel={t("chat.thinking")}
+            reasoningLabel={t("chat.reasoning")}
+            reasoningStreamingLabel={t("chat.reasoningStreaming")}
+            reasoningToggleLabel={t("chat.reasoningToggle")}
           />
         </MessageContent>
       </Message>
