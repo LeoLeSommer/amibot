@@ -20,6 +20,7 @@ import Markdown from "react-native-markdown-display";
 import Animated from "react-native-reanimated";
 
 import { Fonts } from "@/constants/theme";
+import { gradientStyle, shadowStyle } from "@/shared/theme/depthStyles";
 import useTheme from "@/shared/theme/useTheme";
 
 import { useBlankSize } from "./useBlank";
@@ -131,13 +132,26 @@ export const MessageContent = memo(function MessageContent({
   className,
 }: MessageContentProps) {
   const { role } = useMessageContext();
+  const { colors, resolvedScheme } = useTheme();
 
-  const roleStyles =
-    role === "user" ? "self-end bg-muted max-w-[90%] px-4" : "self-start";
+  if (role === "user") {
+    return (
+      <View
+        className={`flex w-fit min-w-0 max-w-[90%] flex-col justify-center gap-2 self-end overflow-hidden rounded-3xl border border-border bg-card px-4 py-3 text-base ${className || ""}`}
+        style={[
+          { backgroundColor: colors.card },
+          gradientStyle(resolvedScheme, "card"),
+          shadowStyle(resolvedScheme, "raised"),
+        ]}
+      >
+        {children}
+      </View>
+    );
+  }
 
   return (
     <View
-      className={`flex w-fit min-w-0 flex-col justify-center gap-2 overflow-hidden text-base py-3 rounded-3xl ${roleStyles} ${className || ""}`}
+      className={`flex w-fit min-w-0 flex-col justify-center gap-2 self-start py-3 text-base ${className || ""}`}
     >
       {children}
     </View>

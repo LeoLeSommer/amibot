@@ -16,6 +16,7 @@ import {
   loadAppearanceSettings,
   saveAppearanceSettings,
 } from "./appearanceStorage";
+import { gradientStyle } from "./depthStyles";
 import { resolveColorScheme } from "./resolveColorScheme";
 import { ThemeContext } from "./themeContext";
 import { themeCssVariables } from "./themeCssVariables";
@@ -87,7 +88,10 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
       <VariableContextProvider value={cssVariables}>
         <GluestackUIProvider
           mode={settings.mode}
-          style={{ backgroundColor: colors.background }}
+          style={[
+            { backgroundColor: colors.background },
+            gradientStyle(resolvedScheme, "canvas"),
+          ]}
         >
           <StatusBar style={resolvedScheme === "dark" ? "light" : "dark"} />
           {children}

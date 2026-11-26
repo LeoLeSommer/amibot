@@ -268,6 +268,68 @@ export const glassVariants: Record<GlassVariant, GlassVariantTokens> = {
   },
 };
 
+/**
+ * Elevation presets. Values are CSS `box-shadow` strings: React Native's new
+ * architecture and react-native-web both accept them, so one token drives
+ * every platform. `inset` highlights fake a lit top edge; the drop layers stay
+ * low-opacity so neutral surfaces keep the lead.
+ */
+export type ShadowLevel =
+  "raised" | "floating" | "overlay" | "action" | "control" | "field" | "header";
+
+export const depthShadows: Record<ThemeScheme, Record<ShadowLevel, string>> = {
+  light: {
+    raised:
+      "inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(23, 23, 26, 0.05), 0 6px 20px rgba(23, 23, 26, 0.06)",
+    floating:
+      "inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 16px rgba(23, 23, 26, 0.08), 0 20px 44px rgba(23, 23, 26, 0.08)",
+    overlay: "0 28px 72px rgba(23, 23, 26, 0.2)",
+    action:
+      "inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 1px 2px rgba(42, 60, 203, 0.28), 0 8px 20px rgba(42, 60, 203, 0.22)",
+    control:
+      "inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(23, 23, 26, 0.06)",
+    field: "inset 0 1px 2px rgba(23, 23, 26, 0.07)",
+    header:
+      "0 1px 0 rgba(23, 23, 26, 0.04), 0 10px 30px rgba(23, 23, 26, 0.07)",
+  },
+  dark: {
+    raised:
+      "inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 0, 0, 0.35)",
+    floating:
+      "inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 10px 28px rgba(0, 0, 0, 0.5), 0 24px 60px rgba(0, 0, 0, 0.35)",
+    overlay: "0 32px 80px rgba(0, 0, 0, 0.65)",
+    action:
+      "inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 22px rgba(155, 166, 255, 0.16)",
+    control:
+      "inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 1px 2px rgba(0, 0, 0, 0.4)",
+    field: "inset 0 1px 2px rgba(0, 0, 0, 0.45)",
+    header: "0 1px 0 rgba(255, 255, 255, 0.04), 0 12px 36px rgba(0, 0, 0, 0.5)",
+  },
+};
+
+export type GradientName = "canvas" | "card" | "primary" | "header";
+
+/**
+ * Background gradients. They stay neutral and directional (top light, bottom
+ * shaded) so they read as light on a surface, never as decoration.
+ */
+export const gradients: Record<ThemeScheme, Record<GradientName, string>> = {
+  light: {
+    canvas: "linear-gradient(180deg, #FBFAF7 0%, #F7F6F2 46%, #EFECE4 100%)",
+    card: "linear-gradient(180deg, #FFFFFF 0%, #FAF9F6 100%)",
+    primary: "linear-gradient(180deg, #3547D8 0%, #2A3CCB 52%, #2536A9 100%)",
+    header:
+      "linear-gradient(180deg, rgba(251, 250, 247, 0.94) 0%, rgba(247, 246, 242, 0.88) 100%)",
+  },
+  dark: {
+    canvas: "linear-gradient(180deg, #15151A 0%, #0E0E10 48%, #0B0B0D 100%)",
+    card: "linear-gradient(180deg, #1B1B20 0%, #17171A 100%)",
+    primary: "linear-gradient(180deg, #ADB6FF 0%, #9BA6FF 52%, #808CEE 100%)",
+    header:
+      "linear-gradient(180deg, rgba(21, 21, 26, 0.94) 0%, rgba(14, 14, 16, 0.88) 100%)",
+  },
+};
+
 export const Layout = {
   headerHeight: 56,
 } as const;

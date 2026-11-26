@@ -30,8 +30,9 @@ Not: glass, gradients, glow, neon, playful, skeuomorphic, card soup.
    borders or backgrounds do.
 2. **Structure is drawn with lines and space.** A hairline and 24px of air
    separate better than a card.
-3. **Opaque by default.** No blur, transparency, or material effects. The
-   interface stays legible and cheap on every platform.
+3. **Opaque by default.** Depth comes from light and shadow, not blur or
+   transparency. Surfaces stay opaque so the interface remains legible and
+   cheap on every platform.
 4. **One signal.** The accent marks action and state; it never becomes
    decoration. Neutral surfaces carry at least 90% of a screen.
 5. **Content first, chrome quiet.** Navigation recedes; the page title and the
@@ -87,7 +88,8 @@ both modes; re-check if any value changes.
   buttons use `destructiveForeground`, not white by default.
 - `surface`, `muted`, and `accent` are for insets, wells, hover, and selection.
   They are not page backgrounds and never a second signal.
-- No gradients, tinted page backgrounds, colored shadows, or glows.
+- Gradients stay neutral and directional (canvas, paper, primary action). No
+  tinted page backgrounds, colored glows, or neon.
 - Themes differ by signal, not by mood: the canvas stays warm in all of them.
 
 ## Typography
@@ -151,8 +153,11 @@ No tabs, sidebar, or drawer until the modules that need them land.
   sheets, `full` only for status dots and tags. Buttons are not pills.
 - **Lines:** 1px hairline for structure. Never box every group; prefer space,
   then a single line, then a surface.
-- **Elevation:** none on content. Chrome separates with a hairline, not a
-  shadow. Overlays get one soft shadow plus a scrim.
+- **Elevation:** one restrained ladder, never stacked. Panels and the composer
+  use `raised`/`floating`; the app bar uses `header`; primary actions use
+  `action`. Shadows stay low-opacity, neutral, and paired with a hairline or a
+  `inset` top highlight. Overlays use `overlay` plus a scrim. All values live in
+  `depthShadows` in `constants/theme.ts`; never hand-write a shadow.
 - **No nested cards.** A card inside a card is a bug, not a style.
 
 ## Icons

@@ -9,6 +9,7 @@ import useServerConfig from "@/features/server/hooks/useServerConfig";
 import AppShell from "@/shared/components/appShell/AppShell";
 import AppearanceSettings from "@/shared/components/settings/AppearanceSettings";
 import Slot from "@/shared/components/slots/Slot";
+import Panel from "@/shared/components/surface/Panel";
 import { Button } from "@/shared/components/ui/button";
 import useTheme from "@/shared/theme/useTheme";
 
@@ -37,16 +38,17 @@ export default function SettingsScreen() {
         ) : null
       }
     >
-      <View className="gap-6 p-4">
-        <View className="gap-3">
+      <View className="gap-5 p-4">
+        <Panel className="gap-3">
           <Text className="text-base font-sans-semibold text-foreground">
             {t("settings.server.title")}
           </Text>
           <ServerSettingsForm />
           <ServerStatus />
-        </View>
-        <View className="h-px bg-border" />
-        <AppearanceSettings />
+        </Panel>
+        <Panel>
+          <AppearanceSettings />
+        </Panel>
         <Slot name="app.settings" />
       </View>
     </AppShell>

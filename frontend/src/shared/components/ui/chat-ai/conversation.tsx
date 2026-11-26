@@ -12,6 +12,9 @@ import {
   type ViewStyle,
 } from "react-native";
 
+import { gradientStyle, shadowStyle } from "@/shared/theme/depthStyles";
+import useTheme from "@/shared/theme/useTheme";
+
 import { BlankProvider, useBlankContext } from "./blank-context";
 import { Message, MessageContent, MessageResponse } from "./message";
 
@@ -21,7 +24,7 @@ export type ConversationProps = React.PropsWithChildren<{
 
 export const Conversation = ({ children, className }: ConversationProps) => (
   <BlankProvider>
-    <View className={`flex-1 bg-background ${className || ""}`}>
+    <View className={`flex-1 bg-transparent ${className || ""}`}>
       {children}
     </View>
   </BlankProvider>
@@ -48,7 +51,7 @@ export const ConversationEmptyState = ({
     <Text
       testID={testID}
       nativeID={nativeID}
-      className="mt-4 text-3xl font-semibold text-foreground"
+      className="mt-4 text-3xl font-semibold text-center text-foreground"
     >
       {title}
     </Text>
@@ -123,17 +126,28 @@ export const ConversationContent = ({
   );
 };
 
-export const ConversationScrollButton = () => (
-  <TouchableOpacity className="absolute bottom-6 left-1/2 h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full bg-primary shadow-lg">
-    <ArrowDown size={22} className="text-primary-foreground" />
-  </TouchableOpacity>
-);
+export const ConversationScrollButton = () => {
+  const { resolvedScheme } = useTheme();
+
+  return (
+    <TouchableOpacity
+      className="absolute bottom-6 left-1/2 h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full bg-primary"
+      style={[
+        gradientStyle(resolvedScheme, "primary"),
+        shadowStyle(resolvedScheme, "action"),
+      ]}
+    >
+      <ArrowDown size={22} className="text-primary-foreground" />
+    </TouchableOpacity>
+  );
+};
 
 export type ConversationDownloadProps = { messages: UIMessage[] };
 
 export const ConversationDownload = ({
   messages,
 }: ConversationDownloadProps) => {
+  const { resolvedScheme } = useTheme();
   const handleDownload = useCallback(() => {
     Alert.alert("Download", `Markdown ready (${messages.length} messages)`);
   }, [messages.length]);
@@ -141,7 +155,11 @@ export const ConversationDownload = ({
   return (
     <TouchableOpacity
       onPress={handleDownload}
-      className="absolute right-4 top-4 rounded-2xl bg-card p-3 shadow-sm"
+      className="absolute right-4 top-4 rounded-2xl border border-border bg-card p-3"
+      style={[
+        gradientStyle(resolvedScheme, "card"),
+        shadowStyle(resolvedScheme, "raised"),
+      ]}
     >
       <Download size={20} className="text-muted-foreground" />
     </TouchableOpacity>

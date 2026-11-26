@@ -141,8 +141,7 @@ export default function ChatPanel() {
     <View
       testID="chat-panel"
       nativeID="chat-panel"
-      className="flex-1"
-      style={{ backgroundColor: colors.background }}
+      className="flex-1 bg-transparent"
     >
       {activeError ? (
         <View

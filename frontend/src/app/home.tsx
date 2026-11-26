@@ -1,12 +1,13 @@
 import { Redirect, router } from "expo-router";
 import { Settings } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator } from "react-native";
 
 import ModuleSurface from "@/features/server/components/ModuleSurface";
 import useManifest from "@/features/server/hooks/useManifest";
 import useServerConfig from "@/features/server/hooks/useServerConfig";
 import AppShell from "@/shared/components/appShell/AppShell";
+import Canvas from "@/shared/components/surface/Canvas";
 import { Button } from "@/shared/components/ui/button";
 import useTheme from "@/shared/theme/useTheme";
 
@@ -18,9 +19,9 @@ export default function HomeScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
+      <Canvas className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+      </Canvas>
     );
   }
 

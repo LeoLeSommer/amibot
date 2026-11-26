@@ -26,6 +26,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import { gradientStyle, shadowStyle } from "@/shared/theme/depthStyles";
 import useTheme from "@/shared/theme/useTheme";
 
 export type PromptInputMessage = {
@@ -64,7 +65,7 @@ export const PromptInput = ({
 }) => {
   const [text, setText] = useState("");
   const [isFocused, setFocused] = useState(false);
-  const { colors } = useTheme();
+  const { colors, resolvedScheme } = useTheme();
 
   const handleSubmit = useCallback(() => {
     if (!text.trim()) {
@@ -117,7 +118,11 @@ export const PromptInput = ({
     <PromptContext.Provider value={value}>
       <Animated.View style={inputAnimatedStyle}>
         <Animated.View
-          style={composerAnimatedStyle}
+          style={[
+            composerAnimatedStyle,
+            gradientStyle(resolvedScheme, "card"),
+            shadowStyle(resolvedScheme, "floating"),
+          ]}
           className="absolute bottom-4 left-4 right-4 rounded-3xl border bg-card px-2 py-2"
         >
           {children}
@@ -262,6 +267,7 @@ export const PromptInputSubmit = ({
   nativeID,
 }: PromptInputSubmitProps) => {
   const { handleSubmit, isDisabled } = usePrompt();
+  const { resolvedScheme } = useTheme();
   const isInactive = disabled || isDisabled || loading;
 
   return (
@@ -275,6 +281,7 @@ export const PromptInputSubmit = ({
       className={`h-10 w-10 items-center justify-center rounded-full bg-primary ${
         isInactive ? "opacity-40" : "active:opacity-90"
       }`}
+      style={shadowStyle(resolvedScheme, "action")}
     >
       {loading ? (
         <ActivityIndicator color="white" />

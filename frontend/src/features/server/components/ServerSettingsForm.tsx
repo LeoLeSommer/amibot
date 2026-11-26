@@ -6,6 +6,7 @@ import { Text, TextInput, View } from "react-native";
 
 import { normalizeServerUrl } from "@/lib/api/serverUrl";
 import { Button, ButtonText } from "@/shared/components/ui/button";
+import { shadowStyle, shadowTextStyle } from "@/shared/theme/depthStyles";
 import useTheme from "@/shared/theme/useTheme";
 
 import useServerConfig from "../hooks/useServerConfig";
@@ -14,7 +15,7 @@ import { serverUrlSchema, type ServerUrlFormValues } from "../schema";
 export default function ServerSettingsForm() {
   const { t } = useTranslation();
   const { serverUrl, isLoading, connect, disconnect } = useServerConfig();
-  const { colors } = useTheme();
+  const { colors, resolvedScheme } = useTheme();
 
   const {
     control,
@@ -52,6 +53,7 @@ export default function ServerSettingsForm() {
               testID="server-url-input"
               nativeID="server-url-input"
               className="rounded-xl border border-border bg-card px-3 py-2 text-base text-foreground"
+              style={shadowTextStyle(resolvedScheme, "field")}
               autoCapitalize="none"
               autoCorrect={false}
               inputMode="url"
@@ -77,6 +79,7 @@ export default function ServerSettingsForm() {
           nativeID="server-connect"
           onPress={() => void submit()}
           isDisabled={isLoading || isSubmitting}
+          style={shadowStyle(resolvedScheme, "action")}
         >
           <ButtonText>{t("settings.connect")}</ButtonText>
         </Button>
@@ -88,6 +91,7 @@ export default function ServerSettingsForm() {
             variant="outline"
             onPress={() => void disconnect()}
             isDisabled={isLoading}
+            style={shadowStyle(resolvedScheme, "control")}
           >
             <ButtonText>{t("settings.disconnect")}</ButtonText>
           </Button>

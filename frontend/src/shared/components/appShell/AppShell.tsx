@@ -6,6 +6,8 @@ import { Layout } from "@/constants/theme";
 import GlassSurface from "@/shared/components/glass/GlassSurface";
 import GlassTarget from "@/shared/components/glass/GlassTarget";
 import Slot from "@/shared/components/slots/Slot";
+import Canvas from "@/shared/components/surface/Canvas";
+import { shadowStyle } from "@/shared/theme/depthStyles";
 import useTheme from "@/shared/theme/useTheme";
 
 export type AppShellProps = {
@@ -23,7 +25,7 @@ export default function AppShell({
   rightActions,
   scrollable = false,
 }: AppShellProps) {
-  const { colors } = useTheme();
+  const { resolvedScheme } = useTheme();
   const insets = useSafeAreaInsets();
   const targetRef = useRef<View>(null);
 
@@ -34,7 +36,7 @@ export default function AppShell({
   };
 
   return (
-    <View className="flex-1" style={{ backgroundColor: colors.background }}>
+    <Canvas className="flex-1">
       <GlassTarget targetRef={targetRef} className="flex-1">
         {scrollable ? (
           <ScrollView
@@ -60,7 +62,10 @@ export default function AppShell({
         variant="navigation"
         blurTarget={targetRef}
         className="absolute left-0 right-0 top-0"
-        style={{ paddingTop: insets.top, ...horizontalInsets }}
+        style={[
+          { paddingTop: insets.top, ...horizontalInsets },
+          shadowStyle(resolvedScheme, "header"),
+        ]}
       >
         <View
           className="flex-row items-center gap-3 px-4"
@@ -79,6 +84,6 @@ export default function AppShell({
           {rightActions}
         </View>
       </GlassSurface>
-    </View>
+    </Canvas>
   );
 }

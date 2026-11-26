@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 
 import { colorModes, themeNames, type ColorMode } from "@/constants/theme";
 import { Button, ButtonText } from "@/shared/components/ui/button";
+import { shadowStyle } from "@/shared/theme/depthStyles";
 import useTheme from "@/shared/theme/useTheme";
 
 const modeOptionTestIDs: Record<ColorMode, string> = {
@@ -13,7 +14,7 @@ const modeOptionTestIDs: Record<ColorMode, string> = {
 
 export default function AppearanceSettings() {
   const { t } = useTranslation();
-  const { theme, mode, setTheme, setMode } = useTheme();
+  const { theme, mode, resolvedScheme, setTheme, setMode } = useTheme();
 
   return (
     <View
@@ -43,6 +44,10 @@ export default function AppearanceSettings() {
                 size="sm"
                 accessibilityState={{ selected }}
                 onPress={() => setTheme(name)}
+                style={shadowStyle(
+                  resolvedScheme,
+                  selected ? "action" : "control",
+                )}
               >
                 <ButtonText>
                   {t(`settings.appearance.themes.${name}`)}
@@ -71,6 +76,10 @@ export default function AppearanceSettings() {
                 size="sm"
                 accessibilityState={{ selected }}
                 onPress={() => setMode(name)}
+                style={shadowStyle(
+                  resolvedScheme,
+                  selected ? "action" : "control",
+                )}
               >
                 <ButtonText>
                   {t(`settings.appearance.modes.${name}`)}

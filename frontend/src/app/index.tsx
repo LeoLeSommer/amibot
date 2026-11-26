@@ -1,7 +1,8 @@
 import { Redirect } from "expo-router";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator } from "react-native";
 
 import useServerConfig from "@/features/server/hooks/useServerConfig";
+import Canvas from "@/shared/components/surface/Canvas";
 import useTheme from "@/shared/theme/useTheme";
 
 export default function IndexScreen() {
@@ -10,9 +11,9 @@ export default function IndexScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-background">
+      <Canvas className="flex-1 items-center justify-center">
         <ActivityIndicator size="large" color={colors.primary} />
-      </View>
+      </Canvas>
     );
   }
 
