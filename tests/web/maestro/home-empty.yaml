@@ -7,6 +7,11 @@ name: Empty server and settings
 - assertVisible:
     id: home-empty-title
 - tapOn:
+    id: menu-toggle
+- assertVisible:
+    id: app-drawer
+- assertVisible: "New conversation"
+- tapOn:
     id: settings-open
 - assertVisible: "Settings"
 - assertVisible: "Server"

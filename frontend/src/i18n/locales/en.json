@@ -27,6 +27,11 @@
     "noUiBody": "The installed modules do not render anything in this slot.",
     "noUiTitle": "No interface contributions"
   },
+  "menu": {
+    "close": "Close menu",
+    "newConversation": "New conversation",
+    "open": "Open menu"
+  },
   "notFound": {
     "back": "Back to start",
     "body": "This screen does not exist.",

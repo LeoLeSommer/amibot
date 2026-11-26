@@ -90,7 +90,8 @@ Mobile flows live in `tests/mobile/maestro/` and use `appId: app.amibot`.
 
 - Maestro flow text is English in this skeleton; assert localized labels with
   `EXPO_PUBLIC_APP_LOCALE=en` pinned.
-- Keep `testID` values stable: `home-empty-title`, `settings-open`,
+- Keep `testID` values stable: `home-empty-title`, `menu-toggle`, `app-drawer`,
+  `drawer-new-conversation`, `drawer-connect`, `settings-open`,
   `settings-title`, `server-url-input`, `server-connect`, `server-disconnect`,
   `server-status`, `appearance-settings`, `theme-option-default`,
   `theme-option-ocean`, `theme-option-forest`, `mode-option-auto`,

@@ -1,7 +1,7 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { ChevronDown, Mic, Plus } from "lucide-react-native";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, Text, View } from "react-native";
 
@@ -36,6 +36,7 @@ import {
   type ConversationRenderItem,
   type PromptInputMessage,
 } from "@/shared/components/ui/chat-ai";
+import { subscribeNewConversation } from "@/shared/events/newConversation";
 import useTheme from "@/shared/theme/useTheme";
 
 import useChatModels from "../hooks/useChatModels";
@@ -67,7 +68,7 @@ export default function ChatPanel() {
   const [modelOpen, setModelOpen] = useState(false);
   const [sendError, setSendError] = useState<Error | null>(null);
   const [lastSent, setLastSent] = useState("");
-  const [sessionId] = useState(createSessionId);
+  const [sessionId, setSessionId] = useState(createSessionId);
   const { data: modelsData } = useChatModels();
 
   const models = modelsData?.models ?? [];
@@ -97,11 +98,31 @@ export default function ChatPanel() {
     [sessionId],
   );
 
-  const { messages, sendMessage, status, error, clearError, regenerate } =
-    useChat({
-      transport,
-      onError: (cause) => setSendError(cause),
-    });
+  const {
+    messages,
+    sendMessage,
+    status,
+    error,
+    clearError,
+    regenerate,
+    setMessages,
+    stop,
+  } = useChat({
+    transport,
+    onError: (cause) => setSendError(cause),
+  });
+
+  useEffect(
+    () =>
+      subscribeNewConversation(() => {
+        stop();
+        setMessages([]);
+        setSendError(null);
+        clearError();
+        setSessionId(createSessionId());
+      }),
+    [clearError, setMessages, stop],
+  );
 
   const isBusy = status === "submitted" || status === "streaming";
   const activeError = error ?? sendError;

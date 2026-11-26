@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -10,12 +10,19 @@ import Canvas from "@/shared/components/surface/Canvas";
 import { shadowStyle } from "@/shared/theme/depthStyles";
 import useTheme from "@/shared/theme/useTheme";
 
+import AppDrawer from "./AppDrawer";
+import MenuButton from "./MenuButton";
+
 export type AppShellProps = {
   title: string;
   titleTestID?: string;
   children: ReactNode;
   rightActions?: ReactNode;
   scrollable?: boolean;
+  showMenu?: boolean;
+  leading?: ReactNode;
+  onNewConversation?: () => void;
+  onOpenSettings?: () => void;
 };
 
 export default function AppShell({
@@ -24,10 +31,31 @@ export default function AppShell({
   children,
   rightActions,
   scrollable = false,
+  showMenu = true,
+  leading,
+  onNewConversation,
+  onOpenSettings,
 }: AppShellProps) {
   const { resolvedScheme } = useTheme();
   const insets = useSafeAreaInsets();
   const targetRef = useRef<View>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  const toggleMenu = useCallback(() => {
+    setMenuOpen((value) => !value);
+  }, []);
+
+  const handleNewConversation = useCallback(() => {
+    setMenuOpen(false);
+    onNewConversation?.();
+  }, [onNewConversation]);
+
+  const handleOpenSettings = useCallback(() => {
+    setMenuOpen(false);
+    onOpenSettings?.();
+  }, [onOpenSettings]);
 
   const contentTop = insets.top + Layout.headerHeight;
   const horizontalInsets = {
@@ -58,6 +86,14 @@ export default function AppShell({
           </View>
         )}
       </GlassTarget>
+      {showMenu ? (
+        <AppDrawer
+          open={menuOpen}
+          onClose={closeMenu}
+          onNewConversation={handleNewConversation}
+          onOpenSettings={handleOpenSettings}
+        />
+      ) : null}
       <GlassSurface
         variant="navigation"
         blurTarget={targetRef}
@@ -65,12 +101,18 @@ export default function AppShell({
         style={[
           { paddingTop: insets.top, ...horizontalInsets },
           shadowStyle(resolvedScheme, "header"),
+          { zIndex: 20 },
         ]}
       >
         <View
           className="flex-row items-center gap-3 px-4"
           style={{ height: Layout.headerHeight }}
         >
+          {showMenu ? (
+            <MenuButton open={menuOpen} onPress={toggleMenu} />
+          ) : (
+            leading
+          )}
           <Text
             testID={titleTestID}
             nativeID={titleTestID}

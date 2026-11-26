@@ -18,12 +18,22 @@ export default function SettingsScreen() {
   const { serverUrl } = useServerConfig();
   const { colors } = useTheme();
 
+  const goBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/home");
+  };
+
   return (
     <AppShell
       title={t("settings.title")}
       titleTestID="settings-title"
       scrollable
-      rightActions={
+      showMenu={false}
+      leading={
         serverUrl ? (
           <Button
             testID="settings-back"
@@ -31,7 +41,7 @@ export default function SettingsScreen() {
             variant="ghost"
             size="icon"
             accessibilityLabel={t("common.back")}
-            onPress={() => router.replace("/home")}
+            onPress={goBack}
           >
             <ChevronLeft color={colors.foreground} size={20} />
           </Button>

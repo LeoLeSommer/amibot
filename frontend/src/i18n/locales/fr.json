@@ -27,6 +27,11 @@
     "noUiBody": "Les modules installés ne rendent rien dans cet emplacement.",
     "noUiTitle": "Aucune contribution d'interface"
   },
+  "menu": {
+    "close": "Fermer le menu",
+    "newConversation": "Nouvelle conversation",
+    "open": "Ouvrir le menu"
+  },
   "notFound": {
     "back": "Retour au début",
     "body": "Cet écran n'existe pas.",

@@ -1,11 +1,6 @@
-import {
-  DefaultTheme,
-  ThemeProvider as NavigationThemeProvider,
-  Stack,
-} from "expo-router";
-import { useMemo } from "react";
+import { ThemeProvider as NavigationThemeProvider, Stack } from "expo-router";
 
-import useTheme from "@/shared/theme/useTheme";
+import useNavigationTheme from "./useNavigationTheme";
 
 export type AppNavigatorProps = {
   reduceMotion: boolean;
@@ -16,24 +11,7 @@ export type AppNavigatorProps = {
  * follow the in-app color mode instead of the navigation library default.
  */
 export default function AppNavigator({ reduceMotion }: AppNavigatorProps) {
-  const { colors, resolvedScheme } = useTheme();
-
-  const navigationTheme = useMemo(
-    () => ({
-      ...DefaultTheme,
-      dark: resolvedScheme === "dark",
-      colors: {
-        ...DefaultTheme.colors,
-        primary: colors.primary,
-        background: colors.background,
-        card: colors.card,
-        text: colors.foreground,
-        border: colors.border,
-        notification: colors.destructive,
-      },
-    }),
-    [colors, resolvedScheme],
-  );
+  const navigationTheme = useNavigationTheme();
 
   return (
     <NavigationThemeProvider value={navigationTheme}>
@@ -46,6 +24,13 @@ export default function AppNavigator({ reduceMotion }: AppNavigatorProps) {
         <Stack.Screen
           name="home"
           options={{ animation: reduceMotion ? "none" : "fade" }}
+        />
+        <Stack.Screen
+          name="settings"
+          options={{
+            animation: reduceMotion ? "none" : "slide_from_right",
+            gestureEnabled: !reduceMotion,
+          }}
         />
         <Stack.Screen name="update" options={{ gestureEnabled: false }} />
       </Stack>
