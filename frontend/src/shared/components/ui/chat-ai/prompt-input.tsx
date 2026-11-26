@@ -1,22 +1,32 @@
+import { ArrowUp } from "lucide-react-native";
 import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
-  Text,
   TextInput,
-  TouchableOpacity,
   View,
+  type NativeSyntheticEvent,
+  type TextInputKeyPressEventData,
   type TextInputProps,
 } from "react-native";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+
+import useTheme from "@/shared/theme/useTheme";
 
 export type PromptInputMessage = {
   text: string;
@@ -27,6 +37,8 @@ type PromptContextType = {
   setText: (text: string) => void;
   handleSubmit: () => void;
   isDisabled: boolean;
+  isFocused: boolean;
+  setFocused: (focused: boolean) => void;
 };
 
 const PromptContext = createContext<PromptContextType | null>(null);
@@ -51,6 +63,8 @@ export const PromptInput = ({
   onSubmit?: (message: PromptInputMessage) => void;
 }) => {
   const [text, setText] = useState("");
+  const [isFocused, setFocused] = useState(false);
+  const { colors } = useTheme();
 
   const handleSubmit = useCallback(() => {
     if (!text.trim()) {
@@ -70,24 +84,51 @@ export const PromptInput = ({
     [height],
   );
 
+  const focusProgress = useSharedValue(0);
+
+  useEffect(() => {
+    focusProgress.value = withTiming(isFocused ? 1 : 0, { duration: 180 });
+  }, [focusProgress, isFocused]);
+
+  const composerAnimatedStyle = useAnimatedStyle(
+    () => ({
+      borderColor: interpolateColor(
+        focusProgress.value,
+        [0, 1],
+        [colors.border, colors.primary],
+      ),
+    }),
+    [colors.border, colors.primary, focusProgress],
+  );
+
   const value = useMemo(
-    () => ({ text, setText, handleSubmit, isDisabled }),
-    [text, handleSubmit, isDisabled],
+    () => ({
+      isDisabled,
+      isFocused,
+      setFocused,
+      handleSubmit,
+      setText,
+      text,
+    }),
+    [handleSubmit, isDisabled, isFocused, text],
   );
 
   return (
     <PromptContext.Provider value={value}>
       <Animated.View style={inputAnimatedStyle}>
-        <View className="absolute bottom-4 left-4 right-4 rounded-3xl border border-border bg-muted px-3 py-2">
+        <Animated.View
+          style={composerAnimatedStyle}
+          className="absolute bottom-4 left-4 right-4 rounded-3xl border bg-card px-2 py-2"
+        >
           {children}
-        </View>
+        </Animated.View>
       </Animated.View>
     </PromptContext.Provider>
   );
 };
 
 export const PromptInputBody = ({ children }: { children: ReactNode }) => (
-  <View className="flex-row items-center gap-2 pt-2">{children}</View>
+  <View className="flex-col gap-1">{children}</View>
 );
 
 export type PromptInputTextareaProps = Omit<
@@ -95,47 +136,114 @@ export type PromptInputTextareaProps = Omit<
   "value" | "onChangeText"
 >;
 
+type WebKeyPressEvent = NativeSyntheticEvent<
+  TextInputKeyPressEventData & {
+    shiftKey?: boolean;
+    isComposing?: boolean;
+  }
+>;
+
 export const PromptInputTextarea = ({
   placeholder = "Type a message",
   editable = true,
+  onKeyPress,
+  onFocus,
+  onBlur,
   ...props
 }: PromptInputTextareaProps) => {
-  const { text, setText } = usePrompt();
+  const { text, setText, handleSubmit, setFocused } = usePrompt();
+
+  const handleKeyPress = (event: WebKeyPressEvent) => {
+    onKeyPress?.(event);
+
+    if (Platform.OS !== "web") {
+      return;
+    }
+
+    const nativeEvent = event.nativeEvent;
+
+    if (nativeEvent.isComposing) {
+      return;
+    }
+
+    if (nativeEvent.key === "Enter" && !nativeEvent.shiftKey) {
+      event.preventDefault?.();
+      handleSubmit();
+    }
+  };
 
   return (
     <TextInput
       value={text}
       onChangeText={setText}
+      onKeyPress={handleKeyPress}
+      onFocus={(event) => {
+        setFocused(true);
+        onFocus?.(event);
+      }}
+      onBlur={(event) => {
+        setFocused(false);
+        onBlur?.(event);
+      }}
       placeholder={placeholder}
       multiline
       editable={editable}
-      className="flex-1 rounded-3xl px-4 text-base text-foreground placeholder:text-muted-foreground"
+      textAlignVertical="top"
+      className="max-h-40 min-h-11 w-full px-2 py-1.5 text-base text-foreground outline-none placeholder:text-muted-foreground"
       {...props}
     />
   );
 };
 
 export const PromptInputFooter = ({ children }: { children: ReactNode }) => (
-  <View className="mt-6 flex-row items-center justify-between">{children}</View>
+  <View className="flex-row items-center justify-between gap-2">
+    {children}
+  </View>
 );
 
-export const PromptInputTools = ({ children }: { children: ReactNode }) => (
-  <View className="flex-row items-center gap-2">{children}</View>
-);
-
-export const PromptInputButton = ({
+export const PromptInputTools = ({
   children,
-  onPress,
+  className,
 }: {
   children: ReactNode;
-  onPress?: () => void;
+  className?: string;
 }) => (
-  <TouchableOpacity
+  <View className={`flex-row items-center gap-1 ${className || ""}`}>
+    {children}
+  </View>
+);
+
+export type PromptInputIconButtonProps = {
+  children: ReactNode;
+  onPress?: () => void;
+  disabled?: boolean;
+  accessibilityLabel?: string;
+  testID?: string;
+  nativeID?: string;
+};
+
+export const PromptInputIconButton = ({
+  children,
+  onPress,
+  disabled = false,
+  accessibilityLabel,
+  testID,
+  nativeID,
+}: PromptInputIconButtonProps) => (
+  <Pressable
     onPress={onPress}
-    className="rounded-full bg-muted px-3 py-1"
+    disabled={disabled}
+    accessibilityRole="button"
+    accessibilityLabel={accessibilityLabel}
+    accessibilityState={{ disabled }}
+    testID={testID}
+    nativeID={nativeID}
+    className={`h-10 w-10 items-center justify-center rounded-full ${
+      disabled ? "opacity-40" : "active:bg-accent"
+    }`}
   >
-    <Text>{children}</Text>
-  </TouchableOpacity>
+    {children}
+  </Pressable>
 );
 
 export type PromptInputSubmitProps = {
@@ -164,14 +272,14 @@ export const PromptInputSubmit = ({
       accessibilityLabel={accessibilityLabel}
       testID={testID}
       nativeID={nativeID}
-      className={`mx-1 h-10 w-10 items-center justify-center rounded-full bg-primary ${
-        isInactive ? "opacity-50" : ""
+      className={`h-10 w-10 items-center justify-center rounded-full bg-primary ${
+        isInactive ? "opacity-40" : "active:opacity-90"
       }`}
     >
       {loading ? (
         <ActivityIndicator color="white" />
       ) : (
-        <Text className="text-primary-foreground">↑</Text>
+        <ArrowUp size={20} className="text-primary-foreground" />
       )}
     </Pressable>
   );

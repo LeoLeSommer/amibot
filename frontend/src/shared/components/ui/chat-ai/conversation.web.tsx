@@ -1,6 +1,11 @@
 import type { UIMessage } from "ai";
 import { ArrowDown, Download, MessageSquare } from "lucide-react-native";
-import React, { useCallback, type ReactElement } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  type ReactElement,
+} from "react";
 import {
   Alert,
   FlatList,
@@ -8,6 +13,8 @@ import {
   TouchableOpacity,
   View,
   type FlatListProps,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from "react-native";
 
 import { BlankProvider, useBlankContext } from "./blank-context";
@@ -73,6 +80,7 @@ export type ConversationContentProps = {
 export const ConversationContent = ({
   messages,
   renderItem,
+  contentContainerStyle,
   ...flatListProps
 }: ConversationContentProps) => {
   const defaultRenderItem: ConversationRenderItem = useCallback(
@@ -88,6 +96,60 @@ export const ConversationContent = ({
 
   const { blankSize, messagesContainerHeight } = useBlankContext();
 
+  const listRef = useRef<FlatList<UIMessage>>(null);
+  const isFollowingEnd = useRef(true);
+  const lastOffset = useRef(0);
+  const hasFollowedOnce = useRef(false);
+
+  const scrollToEnd = useCallback(() => {
+    if (!isFollowingEnd.current) {
+      return;
+    }
+
+    const animated = hasFollowedOnce.current;
+    hasFollowedOnce.current = true;
+
+    listRef.current?.scrollToOffset({
+      animated,
+      offset: Number.MAX_SAFE_INTEGER,
+    });
+  }, []);
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const { contentOffset, contentSize, layoutMeasurement } =
+        event.nativeEvent;
+      const offset = contentOffset.y;
+      const distanceFromEnd =
+        contentSize.height - layoutMeasurement.height - offset;
+
+      if (offset < lastOffset.current - 1) {
+        isFollowingEnd.current = false;
+        listRef.current?.scrollToOffset({ animated: false, offset });
+      } else if (distanceFromEnd <= 48) {
+        isFollowingEnd.current = true;
+      }
+
+      lastOffset.current = offset;
+    },
+    [],
+  );
+
+  const handleContentSizeChange = useCallback(() => {
+    scrollToEnd();
+  }, [scrollToEnd]);
+
+  const lastMessage = messages[messages.length - 1];
+  const lastTextLength =
+    lastMessage?.parts.reduce(
+      (total, part) => total + (part.type === "text" ? part.text.length : 0),
+      0,
+    ) ?? 0;
+
+  useEffect(() => {
+    scrollToEnd();
+  }, [lastTextLength, messages.length, scrollToEnd]);
+
   return (
     <View
       className="flex-1"
@@ -96,17 +158,24 @@ export const ConversationContent = ({
       }}
     >
       <FlatList
+        ref={listRef}
         data={messages}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem || defaultRenderItem}
         keyExtractor={(item) => item.id}
         className="flex-1"
-        contentContainerStyle={{
-          gap: 24,
-          paddingBottom: blankSize.value,
-          paddingHorizontal: 16,
-          paddingVertical: 24,
-        }}
+        onScroll={handleScroll}
+        onContentSizeChange={handleContentSizeChange}
+        scrollEventThrottle={16}
+        contentContainerStyle={[
+          {
+            gap: 24,
+            paddingBottom: blankSize.value,
+            paddingHorizontal: 16,
+            paddingVertical: 24,
+          },
+          contentContainerStyle,
+        ]}
         ListEmptyComponent={<ConversationEmptyState />}
         {...flatListProps}
       />

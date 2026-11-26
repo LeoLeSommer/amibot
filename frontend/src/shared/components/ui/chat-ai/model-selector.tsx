@@ -1,32 +1,40 @@
-import { X } from "lucide-react-native";
+import { Check } from "lucide-react-native";
 import React, {
   Children,
-  cloneElement,
   isValidElement,
+  useMemo,
+  useRef,
+  useState,
   type ComponentProps,
   type ReactNode,
 } from "react";
 import {
+  Modal,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
+  useWindowDimensions,
   View,
   type GestureResponderEvent,
 } from "react-native";
 
-import {
-  Modal,
-  ModalBackdrop,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-} from "@/shared/components/ui/modal";
+type ModelSelectorAnchor = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
 
-const ModelSelectorContext = React.createContext<{
+type ModelSelectorContextValue = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-} | null>(null);
+  anchor: ModelSelectorAnchor | null;
+  setAnchor: (anchor: ModelSelectorAnchor | null) => void;
+};
+
+const ModelSelectorContext =
+  React.createContext<ModelSelectorContextValue | null>(null);
 
 const useModelSelector = () => {
   const context = React.useContext(ModelSelectorContext);
@@ -41,16 +49,17 @@ const useModelSelector = () => {
 export type ModelSelectorProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  size?: "xs" | "sm" | "md" | "lg" | "full";
   children: ReactNode;
 };
 
 export const ModelSelector = ({
   open,
   onOpenChange,
-  size = "md",
   children,
 }: ModelSelectorProps) => {
+  const [anchor, setAnchor] = useState<ModelSelectorAnchor | null>(null);
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+
   const childrenArray = Children.toArray(children);
 
   const triggerChildren: ReactNode[] = [];
@@ -64,51 +73,90 @@ export const ModelSelector = ({
     }
   });
 
+  const contextValue = useMemo(
+    () => ({ open, onOpenChange, anchor, setAnchor }),
+    [open, onOpenChange, anchor],
+  );
+
+  const panel = useMemo(() => {
+    if (!anchor) {
+      return null;
+    }
+
+    const width = Math.min(Math.max(anchor.width, 240), windowWidth - 24);
+    const left = Math.min(
+      Math.max(anchor.x, 12),
+      Math.max(12, windowWidth - width - 12),
+    );
+    const bottom = Math.max(12, windowHeight - anchor.y + 8);
+    const maxHeight = Math.max(160, anchor.y - 16);
+
+    return { bottom, left, maxHeight, width };
+  }, [anchor, windowHeight, windowWidth]);
+
   return (
-    <ModelSelectorContext.Provider value={{ open, onOpenChange }}>
+    <ModelSelectorContext.Provider value={contextValue}>
       {triggerChildren}
 
-      <Modal isOpen={open} onClose={() => onOpenChange(false)} size={size}>
-        <ModalBackdrop />
-        {contentElement}
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        onRequestClose={() => onOpenChange(false)}
+      >
+        <Pressable
+          className="flex-1"
+          accessible={false}
+          onPress={() => onOpenChange(false)}
+        >
+          {panel ? (
+            <Pressable
+              accessibilityRole="menu"
+              onPress={(event: GestureResponderEvent) =>
+                event.stopPropagation()
+              }
+              className="absolute overflow-hidden rounded-xl border border-border bg-popover shadow-lg"
+              style={{
+                bottom: panel.bottom,
+                left: panel.left,
+                maxHeight: panel.maxHeight,
+                width: panel.width,
+              }}
+            >
+              {contentElement}
+            </Pressable>
+          ) : null}
+        </Pressable>
       </Modal>
     </ModelSelectorContext.Provider>
   );
 };
 
-export type ModelSelectorTriggerProps = {
-  asChild?: boolean;
-} & ComponentProps<typeof Pressable>;
+export type ModelSelectorTriggerProps = ComponentProps<typeof Pressable>;
 
 export const ModelSelectorTrigger = ({
-  asChild = false,
   className,
   children,
   onPress: userOnPress,
   ...props
 }: ModelSelectorTriggerProps) => {
-  const { onOpenChange } = useModelSelector();
+  const { open, onOpenChange, setAnchor } = useModelSelector();
+  const triggerRef = useRef<View>(null);
 
   const handlePress = (event: GestureResponderEvent) => {
-    onOpenChange(true);
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      setAnchor({ height, width, x, y });
+    });
+    onOpenChange(!open);
     userOnPress?.(event);
   };
 
-  if (asChild && isValidElement(children)) {
-    const child = children as React.ReactElement<{
-      className?: string;
-      onPress?: (event: GestureResponderEvent) => void;
-    }>;
-    return cloneElement(child, {
-      onPress: handlePress,
-      className: `${child.props.className || ""} ${className || ""}`.trim(),
-    });
-  }
-
   return (
     <Pressable
+      ref={triggerRef}
       accessibilityRole="button"
-      className={`h-10 w-full flex-row items-center justify-between rounded-md border border-border bg-background px-3 ${className || ""}`}
+      accessibilityState={{ expanded: open }}
+      className={`h-9 min-w-0 shrink flex-row items-center gap-1 overflow-hidden rounded-full px-3 active:bg-accent ${className || ""}`}
       onPress={handlePress}
       {...props}
     >
@@ -117,30 +165,25 @@ export const ModelSelectorTrigger = ({
   );
 };
 
-export type ModelSelectorContentProps = Omit<
-  ComponentProps<typeof ModalContent>,
-  "children"
-> & {
+export type ModelSelectorContentProps = {
   title?: ReactNode;
   children?: ReactNode;
-  size?: "xs" | "sm" | "md" | "lg" | "full";
+  className?: string;
 };
 
 export const ModelSelectorContent = ({
-  title = "Model Selector",
+  title,
   children,
   className,
-  ...props
 }: ModelSelectorContentProps) => (
-  <ModalContent className={className} {...props}>
-    <ModalHeader>
-      <Text className="sr-only">{title}</Text>
-      <ModalCloseButton>
-        <X size={20} className="text-muted-foreground" />
-      </ModalCloseButton>
-    </ModalHeader>
-    <ModalBody>{children}</ModalBody>
-  </ModalContent>
+  <View className={`flex-col p-1 ${className || ""}`}>
+    {title ? (
+      <Text className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {title}
+      </Text>
+    ) : null}
+    {children}
+  </View>
 );
 
 export const ModelSelectorInput = ({
@@ -148,16 +191,25 @@ export const ModelSelectorInput = ({
   ...props
 }: ComponentProps<typeof TextInput>) => (
   <TextInput
-    className={`h-12 border-b border-border px-4 text-base text-foreground placeholder:text-muted-foreground ${className || ""}`}
+    className={`mx-1 my-1 h-9 rounded-md bg-muted px-3 text-sm text-foreground placeholder:text-muted-foreground ${className || ""}`}
     {...props}
   />
 );
 
 export const ModelSelectorList = ({
+  children,
   className,
-  ...props
-}: ComponentProps<typeof View>) => (
-  <View className={`flex-1 ${className || "w-full"}`} {...props} />
+}: {
+  children: ReactNode;
+  className?: string;
+}) => (
+  <ScrollView
+    showsVerticalScrollIndicator={false}
+    keyboardShouldPersistTaps="handled"
+    className={`max-h-60 ${className || ""}`}
+  >
+    {children}
+  </ScrollView>
 );
 
 export const ModelSelectorEmpty = ({
@@ -166,10 +218,10 @@ export const ModelSelectorEmpty = ({
   ...props
 }: ComponentProps<typeof View> & { label?: string }) => (
   <View
-    className={`flex-1 items-center justify-center py-12 ${className || ""}`}
+    className={`items-center justify-center px-3 py-8 ${className || ""}`}
     {...props}
   >
-    <Text className="text-muted-foreground">{label}</Text>
+    <Text className="text-sm text-muted-foreground">{label}</Text>
   </View>
 );
 
@@ -181,7 +233,7 @@ export const ModelSelectorGroup = ({
 }: ComponentProps<typeof View> & { heading?: string }) => (
   <View className={className} {...props}>
     {heading ? (
-      <Text className="px-4 py-2 text-sm font-semibold text-muted-foreground">
+      <Text className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
         {heading}
       </Text>
     ) : null}
@@ -196,14 +248,15 @@ export const ModelSelectorItem = ({
   ...props
 }: ComponentProps<typeof Pressable> & { isSelected?: boolean }) => (
   <Pressable
-    accessibilityRole="button"
+    accessibilityRole="menuitem"
     accessibilityState={{ selected: isSelected }}
-    className={`w-full flex-row items-center rounded-md px-4 py-3 ${
+    className={`w-full flex-row items-center gap-2 rounded-md px-3 py-2.5 ${
       isSelected ? "bg-accent" : "active:bg-muted"
     } ${className || ""}`}
     {...props}
   >
     {children}
+    {isSelected ? <Check size={16} className="ml-auto text-primary" /> : null}
   </Pressable>
 );
 
@@ -218,7 +271,7 @@ export const ModelSelectorSeparator = ({
   className,
 }: {
   className?: string;
-}) => <View className={`mx-4 my-1 h-px bg-border ${className || ""}`} />;
+}) => <View className={`mx-1 my-1 h-px bg-border ${className || ""}`} />;
 
 export const ModelSelectorLogo = ({ provider }: { provider: string }) => (
   <View className="h-5 w-5 items-center justify-center rounded-full bg-muted">
@@ -244,7 +297,7 @@ export const ModelSelectorName = ({
   className?: string;
 }) => (
   <Text
-    className={`ml-3 flex-1 text-left text-base text-foreground ${className || ""}`}
+    className={`flex-1 text-left text-base text-foreground ${className || ""}`}
   >
     {children}
   </Text>

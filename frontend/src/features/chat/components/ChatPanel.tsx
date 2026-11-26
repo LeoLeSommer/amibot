@@ -1,6 +1,6 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { ChevronDown } from "lucide-react-native";
+import { ChevronDown, Mic, Plus } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, Text, View } from "react-native";
@@ -27,9 +27,12 @@ import {
   ModelSelectorTrigger,
   PromptInput,
   PromptInputBody,
+  PromptInputFooter,
+  PromptInputIconButton,
   PromptInputProvider,
   PromptInputSubmit,
   PromptInputTextarea,
+  PromptInputTools,
   type ConversationRenderItem,
   type PromptInputMessage,
 } from "@/shared/components/ui/chat-ai";
@@ -141,42 +144,6 @@ export default function ChatPanel() {
       className="flex-1"
       style={{ backgroundColor: colors.background }}
     >
-      <View
-        className="border-b px-4 py-3"
-        style={{ borderColor: colors.border }}
-      >
-        <ModelSelector open={modelOpen} onOpenChange={setModelOpen}>
-          <ModelSelectorTrigger
-            testID="chat-model-selector"
-            nativeID="chat-model-selector"
-            accessibilityLabel={t("chat.modelLabel")}
-          >
-            <Text className="text-sm text-foreground">
-              {effectiveModelLabel}
-            </Text>
-            <ChevronDown size={18} className="text-muted-foreground" />
-          </ModelSelectorTrigger>
-          <ModelSelectorContent title={t("chat.modelLabel")}>
-            <ModelSelectorList>
-              {models.map((model) => (
-                <ModelSelectorItem
-                  key={model.id}
-                  isSelected={model.id === effectiveModel}
-                  testID={`chat-model-${model.id}`}
-                  nativeID={`chat-model-${model.id}`}
-                  onPress={() => {
-                    setSelectedModel(model.id);
-                    setModelOpen(false);
-                  }}
-                >
-                  <ModelSelectorName>{model.label}</ModelSelectorName>
-                </ModelSelectorItem>
-              ))}
-            </ModelSelectorList>
-          </ModelSelectorContent>
-        </ModelSelector>
-      </View>
-
       {activeError ? (
         <View
           testID="chat-error"
@@ -212,7 +179,7 @@ export default function ChatPanel() {
           <ConversationContent
             messages={messages}
             renderItem={renderItem}
-            contentContainerStyle={{ paddingBottom: 104 }}
+            contentContainerStyle={{ paddingBottom: 168 }}
           />
         )}
         <PromptInputProvider>
@@ -224,13 +191,71 @@ export default function ChatPanel() {
                 placeholder={t("chat.placeholder")}
                 editable={!isBusy}
               />
-              <PromptInputSubmit
-                testID="chat-send"
-                nativeID="chat-send"
-                accessibilityLabel={t("chat.send")}
-                disabled={isBusy}
-                loading={isBusy}
-              />
+              <PromptInputFooter>
+                <PromptInputTools className="min-w-0 shrink">
+                  <PromptInputIconButton
+                    disabled
+                    testID="chat-attach"
+                    nativeID="chat-attach"
+                    accessibilityLabel={t("chat.attach")}
+                  >
+                    <Plus size={20} className="text-muted-foreground" />
+                  </PromptInputIconButton>
+                  <ModelSelector open={modelOpen} onOpenChange={setModelOpen}>
+                    <ModelSelectorTrigger
+                      testID="chat-model-selector"
+                      nativeID="chat-model-selector"
+                      accessibilityLabel={t("chat.modelLabel")}
+                    >
+                      <Text
+                        numberOfLines={1}
+                        className="max-w-32 shrink text-sm text-foreground"
+                      >
+                        {effectiveModelLabel || t("chat.modelLabel")}
+                      </Text>
+                      <ChevronDown
+                        size={16}
+                        className="text-muted-foreground"
+                      />
+                    </ModelSelectorTrigger>
+                    <ModelSelectorContent title={t("chat.modelLabel")}>
+                      <ModelSelectorList>
+                        {models.map((model) => (
+                          <ModelSelectorItem
+                            key={model.id}
+                            isSelected={model.id === effectiveModel}
+                            testID={`chat-model-${model.id}`}
+                            nativeID={`chat-model-${model.id}`}
+                            onPress={() => {
+                              setSelectedModel(model.id);
+                              setModelOpen(false);
+                            }}
+                          >
+                            <ModelSelectorName>{model.label}</ModelSelectorName>
+                          </ModelSelectorItem>
+                        ))}
+                      </ModelSelectorList>
+                    </ModelSelectorContent>
+                  </ModelSelector>
+                </PromptInputTools>
+                <PromptInputTools className="shrink-0">
+                  <PromptInputIconButton
+                    disabled
+                    testID="chat-voice"
+                    nativeID="chat-voice"
+                    accessibilityLabel={t("chat.voice")}
+                  >
+                    <Mic size={20} className="text-muted-foreground" />
+                  </PromptInputIconButton>
+                  <PromptInputSubmit
+                    testID="chat-send"
+                    nativeID="chat-send"
+                    accessibilityLabel={t("chat.send")}
+                    disabled={isBusy}
+                    loading={isBusy}
+                  />
+                </PromptInputTools>
+              </PromptInputFooter>
             </PromptInputBody>
           </PromptInput>
         </PromptInputProvider>

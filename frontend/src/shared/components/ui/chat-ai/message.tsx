@@ -10,16 +10,17 @@ import React, {
 import {
   Alert,
   Image,
+  Platform,
   Text,
   TouchableOpacity,
   View,
   type ViewStyle,
 } from "react-native";
-import Markdown, {
-  hasParents,
-  type RenderRules,
-} from "react-native-markdown-display";
+import Markdown from "react-native-markdown-display";
 import Animated from "react-native-reanimated";
+
+import { Fonts } from "@/constants/theme";
+import useTheme from "@/shared/theme/useTheme";
 
 import { useBlankSize } from "./useBlank";
 import { useUserMessageAnimation } from "./userAnimation";
@@ -143,70 +144,6 @@ export const MessageContent = memo(function MessageContent({
   );
 });
 
-const markdownRules: RenderRules = {
-  text: (node) => (
-    <Text key={node.key} className="text-lg text-foreground">
-      {node.content}
-    </Text>
-  ),
-
-  ordered_list: (node, children) => (
-    <View key={node.key} className="mb-2">
-      {children}
-    </View>
-  ),
-
-  list_item: (node, children, parentNodes) => {
-    const isOrdered = hasParents(parentNodes, "ordered_list");
-    const index = node.index ?? 0;
-    return (
-      <View key={node.key} className="mb-1 flex-row items-start">
-        <Text className="mr-2 text-foreground">
-          {isOrdered ? `${index + 1}.` : "•"}
-        </Text>
-        <View className="flex-1">
-          <View className="flex-1">{children}</View>
-        </View>
-      </View>
-    );
-  },
-
-  paragraph: (node, children) => <View key={node.key}>{children}</View>,
-
-  strong: (node, children) => (
-    <Text key={node.key} className="font-bold text-foreground">
-      {children}
-    </Text>
-  ),
-
-  em: (node, children) => (
-    <Text key={node.key} className="italic text-foreground">
-      {children}
-    </Text>
-  ),
-
-  fence: (node) => (
-    <View key={node.key} className="my-2 rounded-xl bg-muted p-3">
-      <Text className="font-mono text-sm text-white">{node.content}</Text>
-    </View>
-  ),
-
-  code_block: (node) => (
-    <View key={node.key} className="my-2 rounded-xl bg-slate-900 p-3">
-      <Text className="font-mono text-sm text-white">{node.content}</Text>
-    </View>
-  ),
-
-  code_inline: (node) => (
-    <Text
-      key={node.key}
-      className="rounded bg-slate-800 px-1 py-0.5 text-white"
-    >
-      {node.content}
-    </Text>
-  ),
-};
-
 export type MessageResponseProps = {
   message: UIMessage;
   thinkingLabel?: string;
@@ -216,8 +153,175 @@ export const MessageResponse = memo(function MessageResponse({
   message,
   thinkingLabel = "Thinking...",
 }: MessageResponseProps) {
+  const { colors } = useTheme();
+
+  const markdownStyle = useMemo(
+    () =>
+      ({
+        body: { color: colors.foreground, fontSize: 15, lineHeight: 24 },
+        text: { color: colors.foreground },
+        heading1: {
+          color: colors.foreground,
+          fontFamily: Fonts.displayBold,
+          fontSize: 22,
+          lineHeight: 30,
+          marginTop: 18,
+          marginBottom: 8,
+        },
+        heading2: {
+          color: colors.foreground,
+          fontFamily: Fonts.displaySemibold,
+          fontSize: 19,
+          lineHeight: 26,
+          marginTop: 16,
+          marginBottom: 6,
+        },
+        heading3: {
+          color: colors.foreground,
+          fontFamily: Fonts.sansSemibold,
+          fontSize: 17,
+          lineHeight: 24,
+          marginTop: 14,
+          marginBottom: 6,
+        },
+        heading4: {
+          color: colors.foreground,
+          fontFamily: Fonts.sansSemibold,
+          fontSize: 15,
+          lineHeight: 22,
+          marginTop: 12,
+          marginBottom: 4,
+        },
+        heading5: {
+          color: colors.foreground,
+          fontFamily: Fonts.sansSemibold,
+          fontSize: 15,
+          lineHeight: 22,
+          marginTop: 10,
+          marginBottom: 4,
+        },
+        heading6: {
+          color: colors.foreground,
+          fontFamily: Fonts.sansSemibold,
+          fontSize: 14,
+          lineHeight: 20,
+          marginTop: 10,
+          marginBottom: 4,
+        },
+        paragraph: {
+          marginTop: 0,
+          marginBottom: 8,
+        },
+        blockquote: {
+          backgroundColor: colors.muted,
+          borderLeftColor: colors.border,
+          borderLeftWidth: 3,
+          marginLeft: 0,
+          marginVertical: 8,
+          paddingHorizontal: 12,
+          paddingVertical: 8,
+          borderRadius: 6,
+        },
+        strong: { fontWeight: "700", color: colors.foreground },
+        em: { fontStyle: "italic", color: colors.foreground },
+        link: { color: colors.primary, textDecorationLine: "underline" },
+        hr: {
+          backgroundColor: colors.border,
+          height: 1,
+          marginVertical: 12,
+        },
+        table: {
+          borderColor: colors.border,
+          borderWidth: 1,
+          borderRadius: 8,
+          marginVertical: 8,
+        },
+        thead: {},
+        tbody: {},
+        th: {
+          flex: 1,
+          paddingHorizontal: 10,
+          paddingVertical: 8,
+          backgroundColor: colors.muted,
+          color: colors.foreground,
+          fontFamily: Fonts.sansSemibold,
+        },
+        tr: {
+          borderBottomWidth: 1,
+          borderColor: colors.border,
+          flexDirection: "row",
+        },
+        td: {
+          flex: 1,
+          paddingHorizontal: 10,
+          paddingVertical: 8,
+          color: colors.foreground,
+        },
+        code_inline: {
+          backgroundColor: colors.surface,
+          borderWidth: 0,
+          borderRadius: 4,
+          paddingHorizontal: 5,
+          paddingVertical: 2,
+          fontFamily: Platform.select({
+            ios: "Courier",
+            default: "monospace",
+          }),
+          color: colors.foreground,
+        },
+        code_block: {
+          backgroundColor: colors.surface,
+          borderWidth: 0,
+          borderRadius: 8,
+          padding: 12,
+          fontFamily: Platform.select({
+            ios: "Courier",
+            default: "monospace",
+          }),
+          color: colors.foreground,
+        },
+        fence: {
+          backgroundColor: colors.surface,
+          borderWidth: 0,
+          borderRadius: 8,
+          padding: 12,
+          fontFamily: Platform.select({
+            ios: "Courier",
+            default: "monospace",
+          }),
+          color: colors.foreground,
+        },
+        bullet_list: { marginVertical: 4 },
+        ordered_list: { marginVertical: 4 },
+        list_item: {
+          flexDirection: "row",
+          alignItems: "flex-start",
+          marginVertical: 2,
+        },
+        bullet_list_icon: {
+          marginLeft: 0,
+          marginRight: 8,
+          color: colors.mutedForeground,
+          fontSize: 15,
+          lineHeight: 24,
+        },
+        bullet_list_content: { flex: 1 },
+        ordered_list_icon: {
+          marginLeft: 0,
+          marginRight: 8,
+          minWidth: 18,
+          textAlign: "right",
+          color: colors.mutedForeground,
+          fontSize: 15,
+          lineHeight: 24,
+        },
+        ordered_list_content: { flex: 1 },
+      }) as const,
+    [colors],
+  );
+
   if (!message.parts) {
-    return <Markdown rules={markdownRules}>{""}</Markdown>;
+    return <Markdown style={markdownStyle}>{""}</Markdown>;
   }
 
   const hasText = message.parts.some((part) => part.type === "text");
@@ -232,7 +336,7 @@ export const MessageResponse = memo(function MessageResponse({
       {message.parts.map((part, index) => {
         if (part.type === "text") {
           return (
-            <Markdown key={index} rules={markdownRules}>
+            <Markdown key={index} style={markdownStyle}>
               {part.text || ""}
             </Markdown>
           );

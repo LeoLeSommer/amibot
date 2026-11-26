@@ -59,8 +59,8 @@ describe("themeCssVariables", () => {
   it("maps semantic tokens to their CSS variable names", () => {
     const variables = themeCssVariables(themePalettes.default.light);
 
-    expect(variables["--primary"]).toBe("79 70 229");
-    expect(variables["--background"]).toBe("248 250 252");
-    expect(variables["--muted-foreground"]).toBe("100 116 139");
+    expect(variables["--primary"]).toBe("42 60 203");
+    expect(variables["--background"]).toBe("247 246 242");
+    expect(variables["--muted-foreground"]).toBe("95 91 84");
   });
 });

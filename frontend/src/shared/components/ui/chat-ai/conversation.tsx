@@ -21,7 +21,7 @@ export type ConversationProps = React.PropsWithChildren<{
 
 export const Conversation = ({ children, className }: ConversationProps) => (
   <BlankProvider>
-    <View className={`flex-1 bg-background px-4 ${className || ""}`}>
+    <View className={`flex-1 bg-background ${className || ""}`}>
       {children}
     </View>
   </BlankProvider>
@@ -110,11 +110,13 @@ export const ConversationContent = ({
           keyExtractor={(item) => item.id}
           estimatedItemSize={estimatedItemSize}
           maintainScrollAtEnd
-          contentContainerStyle={
-            contentContainerStyle ?? {
+          contentContainerStyle={[
+            {
               paddingBottom: blankSize.value,
-            }
-          }
+              paddingHorizontal: 16,
+            },
+            contentContainerStyle,
+          ]}
         />
       )}
     </View>

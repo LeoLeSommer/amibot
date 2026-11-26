@@ -21,25 +21,25 @@
    Tokens use the shadcn-style "R G B" triplet convention. */
 @layer theme {
   :root {
-    --background: 248 250 252;
-    --foreground: 15 23 42;
+    --background: 247 246 242;
+    --foreground: 23 23 26;
     --card: 255 255 255;
     --popover: 255 255 255;
-    --popover-foreground: 15 23 42;
-    --surface: 226 232 240;
-    --surface-foreground: 49 46 129;
-    --muted: 241 245 249;
-    --muted-foreground: 100 116 139;
-    --primary: 79 70 229;
-    --primary-foreground: 248 250 252;
-    --secondary: 55 48 163;
-    --secondary-foreground: 248 250 252;
-    --accent: 224 231 255;
-    --accent-foreground: 55 48 163;
-    --border: 226 232 240;
-    --input: 226 232 240;
-    --ring: 79 70 229;
-    --destructive: 220 38 38;
+    --popover-foreground: 23 23 26;
+    --surface: 236 233 226;
+    --surface-foreground: 23 23 26;
+    --muted: 236 233 226;
+    --muted-foreground: 95 91 84;
+    --primary: 42 60 203;
+    --primary-foreground: 255 255 255;
+    --secondary: 38 38 43;
+    --secondary-foreground: 247 246 242;
+    --accent: 231 228 221;
+    --accent-foreground: 23 23 26;
+    --border: 220 216 207;
+    --input: 220 216 207;
+    --ring: 42 60 203;
+    --destructive: 180 35 24;
   }
 }
 

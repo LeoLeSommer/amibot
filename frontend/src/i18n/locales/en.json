@@ -3,6 +3,7 @@
     "name": "Amibot"
   },
   "chat": {
+    "attach": "Attach a file",
     "emptyBody": "Send a message to start a conversation.",
     "emptyTitle": "Start a conversation",
     "error": "Something went wrong. Please try again.",
@@ -12,7 +13,8 @@
     "retry": "Retry",
     "send": "Send",
     "thinking": "Thinking...",
-    "title": "Chat"
+    "title": "Chat",
+    "voice": "Voice input"
   },
   "common": {
     "back": "Back",
