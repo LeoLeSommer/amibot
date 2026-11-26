@@ -1,9 +1,10 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { ChevronDown, Mic, Plus } from "lucide-react-native";
+import { Check, ChevronDown, Copy, Mic, Plus } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View, type ViewStyle } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import i18n from "@/i18n";
 import { getApiBaseUrl } from "@/lib/api/client";
@@ -37,9 +38,11 @@ import {
   type PromptInputMessage,
 } from "@/shared/components/ui/chat-ai";
 import { subscribeNewConversation } from "@/shared/events/newConversation";
+import useAccessibilityPreferences from "@/shared/theme/useAccessibilityPreferences";
 import useTheme from "@/shared/theme/useTheme";
 
 import useChatModels from "../hooks/useChatModels";
+import { copyToClipboard } from "../services/copyToClipboard";
 import { streamFetch } from "../services/streamFetch";
 
 export type ChatPanelProps = SlotComponentProps;
@@ -64,11 +67,14 @@ function createSessionId(): string {
 export default function ChatPanel() {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const { reduceMotion } = useAccessibilityPreferences();
   const [selectedModel, setSelectedModel] = useState("");
   const [modelOpen, setModelOpen] = useState(false);
   const [sendError, setSendError] = useState<Error | null>(null);
   const [lastSent, setLastSent] = useState("");
   const [sessionId, setSessionId] = useState(createSessionId);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const { data: modelsData } = useChatModels();
 
   const models = modelsData?.models ?? [];
@@ -129,6 +135,24 @@ export default function ChatPanel() {
   const isNotConfigured =
     activeError?.message.includes("chat_not_configured") ?? false;
 
+  useEffect(() => {
+    if (!copiedId) {
+      return;
+    }
+    const timeout = setTimeout(() => setCopiedId(null), 1500);
+    return () => clearTimeout(timeout);
+  }, [copiedId]);
+
+  const handleCopy = async (message: UIMessage) => {
+    const text = textOf(message);
+    if (!text) {
+      return;
+    }
+    if (await copyToClipboard(text)) {
+      setCopiedId(message.id);
+    }
+  };
+
   const handleSubmit = ({ text }: PromptInputMessage) => {
     if (!text.trim() || isBusy) {
       return;
@@ -155,20 +179,76 @@ export default function ChatPanel() {
       status === "streaming" &&
       index === messages.length - 1 &&
       item.role === "assistant";
+    const copyable = textOf(item).length > 0;
+    const showCopy =
+      copyable && (Platform.OS !== "web" || hoveredId === item.id);
+    const copied = copiedId === item.id;
+    // On web the row is overlaid in the list gap so revealing it never shifts
+    // the conversation. Native has no hover and keeps the row in flow.
+    const copyRowStyle: ViewStyle | undefined =
+      Platform.OS === "web"
+        ? {
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            zIndex: 10,
+            marginTop: 2,
+          }
+        : undefined;
 
     return (
-      <Message role={item.role} index={index} message={item}>
-        <MessageContent>
-          <MessageResponse
-            message={item}
-            streaming={isStreaming}
-            thinkingLabel={t("chat.thinking")}
-            reasoningLabel={t("chat.reasoning")}
-            reasoningStreamingLabel={t("chat.reasoningStreaming")}
-            reasoningToggleLabel={t("chat.reasoningToggle")}
-          />
-        </MessageContent>
-      </Message>
+      <View
+        onPointerEnter={() => setHoveredId(item.id)}
+        onPointerLeave={() =>
+          setHoveredId((current) => (current === item.id ? null : current))
+        }
+        className="w-full"
+      >
+        <Message role={item.role} index={index} message={item}>
+          <MessageContent>
+            <MessageResponse
+              message={item}
+              streaming={isStreaming}
+              thinkingLabel={t("chat.thinking")}
+              reasoningLabel={t("chat.reasoning")}
+              reasoningStreamingLabel={t("chat.reasoningStreaming")}
+              reasoningToggleLabel={t("chat.reasoningToggle")}
+            />
+          </MessageContent>
+          {showCopy ? (
+            <Animated.View
+              entering={reduceMotion ? undefined : FadeIn.duration(140)}
+              exiting={reduceMotion ? undefined : FadeOut.duration(140)}
+              style={copyRowStyle}
+              className={`flex-row ${
+                item.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
+              <Pressable
+                testID={`chat-copy-${index}`}
+                nativeID={`chat-copy-${index}`}
+                accessibilityRole="button"
+                accessibilityLabel={t("chat.copy")}
+                onPress={() => void handleCopy(item)}
+                className="flex-row items-center gap-1 rounded-md px-2 py-1 active:bg-muted"
+              >
+                {copied ? (
+                  <Check size={13} color={colors.mutedForeground} />
+                ) : (
+                  <Copy size={13} color={colors.mutedForeground} />
+                )}
+                <Text
+                  className="text-xs"
+                  style={{ color: colors.mutedForeground }}
+                >
+                  {copied ? t("chat.copied") : t("chat.copy")}
+                </Text>
+              </Pressable>
+            </Animated.View>
+          ) : null}
+        </Message>
+      </View>
     );
   };
 

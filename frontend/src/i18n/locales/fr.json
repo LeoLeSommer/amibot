@@ -4,6 +4,8 @@
   },
   "chat": {
     "attach": "Joindre un fichier",
+    "copied": "Copié",
+    "copy": "Copier",
     "emptyBody": "Envoyez un message pour démarrer la conversation.",
     "emptyTitle": "Démarrer une conversation",
     "error": "Une erreur est survenue. Veuillez réessayer.",
