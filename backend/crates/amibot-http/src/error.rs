@@ -11,6 +11,8 @@ pub enum ApiError {
     ClientUpdateRequired { min_client_api_version: u32 },
     DatabaseUnavailable,
     ModuleResolutionFailed,
+    ChatNotConfigured,
+    ChatUpstreamFailed,
     Internal,
 }
 
@@ -26,7 +28,8 @@ impl ApiError {
             Self::BadRequest(_) => StatusCode::BAD_REQUEST,
             Self::NotFound => StatusCode::NOT_FOUND,
             Self::ClientUpdateRequired { .. } => StatusCode::UPGRADE_REQUIRED,
-            Self::DatabaseUnavailable => StatusCode::SERVICE_UNAVAILABLE,
+            Self::DatabaseUnavailable | Self::ChatNotConfigured => StatusCode::SERVICE_UNAVAILABLE,
+            Self::ChatUpstreamFailed => StatusCode::BAD_GATEWAY,
             Self::ModuleResolutionFailed | Self::Internal => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
@@ -51,6 +54,14 @@ impl ApiError {
             Self::ModuleResolutionFailed => serde_json::json!({
                 "error": "module resolution failed",
                 "code": "module_resolution_failed",
+            }),
+            Self::ChatNotConfigured => serde_json::json!({
+                "error": "chat is not configured",
+                "code": "chat_not_configured",
+            }),
+            Self::ChatUpstreamFailed => serde_json::json!({
+                "error": "chat upstream failed",
+                "code": "chat_upstream_failed",
             }),
             Self::Internal => {
                 serde_json::json!({ "error": "internal error", "code": "internal" })
@@ -91,6 +102,32 @@ mod tests {
         assert_eq!(
             ApiError::Internal.status(),
             StatusCode::INTERNAL_SERVER_ERROR
+        );
+        assert_eq!(
+            ApiError::ChatNotConfigured.status(),
+            StatusCode::SERVICE_UNAVAILABLE
+        );
+        assert_eq!(
+            ApiError::ChatUpstreamFailed.status(),
+            StatusCode::BAD_GATEWAY
+        );
+    }
+
+    #[test]
+    fn serializes_the_chat_error_contracts() {
+        assert_eq!(
+            ApiError::ChatNotConfigured.body(),
+            serde_json::json!({
+                "error": "chat is not configured",
+                "code": "chat_not_configured",
+            })
+        );
+        assert_eq!(
+            ApiError::ChatUpstreamFailed.body(),
+            serde_json::json!({
+                "error": "chat upstream failed",
+                "code": "chat_upstream_failed",
+            })
         );
     }
 

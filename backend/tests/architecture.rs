@@ -8,11 +8,13 @@ const ALLOWED: &[(&str, &[&str])] = &[
     (
         "amibot-server",
         &[
+            "amibot-chat",
             "amibot-core",
             "amibot-http",
             "amibot-migrations",
             "amibot-runtime",
             "amibot-schema",
+            "amibot-settings",
             "amibot-storage",
         ],
     ),
@@ -22,6 +24,16 @@ const ALLOWED: &[(&str, &[&str])] = &[
     ("amibot-http", &["amibot-core"]),
     ("amibot-storage", &["amibot-core", "amibot-schema"]),
     ("amibot-runtime", &["amibot-core"]),
+    ("amibot-settings", &[]),
+    (
+        "amibot-chat",
+        &[
+            "amibot-core",
+            "amibot-http",
+            "amibot-runtime",
+            "amibot-settings",
+        ],
+    ),
 ];
 
 const SOCLE: &[&str] = &[
@@ -31,6 +43,7 @@ const SOCLE: &[&str] = &[
     "amibot-runtime",
     "amibot-schema",
     "amibot-storage",
+    "amibot-settings",
 ];
 
 fn metadata() -> cargo_metadata::Metadata {

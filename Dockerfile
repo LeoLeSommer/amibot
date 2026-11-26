@@ -21,6 +21,7 @@ RUN apt-get update \
 RUN useradd --system --home /app --shell /usr/sbin/nologin amibot
 WORKDIR /app
 COPY --from=rust /app/backend/target/release/amibot-server /app/amibot-server
+COPY --from=rust /app/backend/settings.yaml /app/settings.yaml
 COPY --from=web /app/frontend/dist /app/web
 ENV AMIBOT_WEB_DIR=/app/web
 ENV AMIBOT_BIND_ADDR=0.0.0.0:3000

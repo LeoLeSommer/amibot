@@ -10,16 +10,21 @@ import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
+import { chatCatalogue } from "@/features/chat/catalogue";
 import ManifestSlotBridge from "@/features/server/components/ManifestSlotBridge";
 import { ServerConfigProvider } from "@/features/server/provider";
 import { setClientUpdateRequiredHandler } from "@/lib/api/client";
 import { queryClient } from "@/lib/queryClient";
+import { slotCatalogue } from "@/shared/components/slots/catalogue";
 import ThemeProvider from "@/shared/theme/ThemeProvider";
 import useAccessibilityPreferences from "@/shared/theme/useAccessibilityPreferences";
 
 import "@/global.css";
 import "@/i18n";
+
+const mergedCatalogue = { ...slotCatalogue, ...chatCatalogue };
 
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ duration: 300, fade: true });
@@ -57,26 +62,31 @@ function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <ServerConfigProvider>
-          <ManifestSlotBridge>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: reduceMotion ? "none" : "default",
-              }}
-            >
-              <Stack.Screen
-                name="home"
-                options={{ animation: reduceMotion ? "none" : "fade" }}
-              />
-              <Stack.Screen name="update" options={{ gestureEnabled: false }} />
-            </Stack>
-          </ManifestSlotBridge>
-        </ServerConfigProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <KeyboardProvider>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <ServerConfigProvider>
+            <ManifestSlotBridge catalogue={mergedCatalogue}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: reduceMotion ? "none" : "default",
+                }}
+              >
+                <Stack.Screen
+                  name="home"
+                  options={{ animation: reduceMotion ? "none" : "fade" }}
+                />
+                <Stack.Screen
+                  name="update"
+                  options={{ gestureEnabled: false }}
+                />
+              </Stack>
+            </ManifestSlotBridge>
+          </ServerConfigProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </KeyboardProvider>
   );
 }
 

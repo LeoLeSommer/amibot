@@ -17,6 +17,14 @@ export function setClientUpdateRequiredHandler(handler: Handler): void {
   clientUpdateRequiredHandler = handler;
 }
 
+/**
+ * Triggers the app-wide forced update reaction. Streaming transports use
+ * fetch directly and bypass Axios interceptors, so they call this on a `426`.
+ */
+export function notifyClientUpdateRequired(): void {
+  clientUpdateRequiredHandler?.();
+}
+
 export function withClientHeaders(
   config: InternalAxiosRequestConfig,
 ): InternalAxiosRequestConfig {
@@ -29,7 +37,7 @@ export function handleApiError(error: unknown): Promise<never> {
   const apiError = toApiError(error);
 
   if (isAxiosError(error) && error.response?.status === 426) {
-    clientUpdateRequiredHandler?.();
+    notifyClientUpdateRequired();
   }
 
   return Promise.reject(apiError);

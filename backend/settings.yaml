@@ -1,0 +1,19 @@
+server:
+  database_url: ${DATABASE_URL}
+  bind_addr: ${AMIBOT_BIND_ADDR:-0.0.0.0:3000}
+  name: ${AMIBOT_SERVER_NAME:-Amibot}
+  allowed_origins: ${AMIBOT_ALLOWED_ORIGINS:-http://localhost:8081}
+  web_dir: ${AMIBOT_WEB_DIR:-../frontend/dist}
+
+chat:
+  enabled: ${AMIBOT_CHAT_ENABLED:-true}
+  provider: opencode-go
+  base_url: https://opencode.ai/inference/go/openai/v1/chat/completions
+  api_key: ${OPENCODE_GO_API_KEY:-}
+  models:
+    - id: glm-5.3-flash
+      label: GLM 5.3 Flash
+    - id: glm-5.3
+      label: GLM 5.3
+  default_model: glm-5.3-flash
+  preprompt: "You are a helpful assistant. Answer clearly and concisely. If you do not know, say so."

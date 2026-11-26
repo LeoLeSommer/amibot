@@ -2,6 +2,18 @@
   "app": {
     "name": "Amibot"
   },
+  "chat": {
+    "emptyBody": "Send a message to start a conversation.",
+    "emptyTitle": "Start a conversation",
+    "error": "Something went wrong. Please try again.",
+    "modelLabel": "Model",
+    "notConfigured": "Chat is not configured on this server.",
+    "placeholder": "Type a message",
+    "retry": "Retry",
+    "send": "Send",
+    "thinking": "Thinking...",
+    "title": "Chat"
+  },
   "common": {
     "back": "Back",
     "reload": "Reload",

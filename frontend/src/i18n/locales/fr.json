@@ -2,6 +2,18 @@
   "app": {
     "name": "Amibot"
   },
+  "chat": {
+    "emptyBody": "Envoyez un message pour démarrer la conversation.",
+    "emptyTitle": "Démarrer une conversation",
+    "error": "Une erreur est survenue. Veuillez réessayer.",
+    "modelLabel": "Modèle",
+    "notConfigured": "Le chat n'est pas configuré sur ce serveur.",
+    "placeholder": "Saisissez un message",
+    "retry": "Réessayer",
+    "send": "Envoyer",
+    "thinking": "Réflexion en cours...",
+    "title": "Chat"
+  },
   "common": {
     "back": "Retour",
     "reload": "Recharger",

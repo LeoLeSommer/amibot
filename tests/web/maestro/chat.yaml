@@ -1,0 +1,22 @@
+url: ${BASE_URL}
+name: Chat module surface
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: chat-panel
+- assertVisible:
+    id: chat-empty-title
+- assertVisible:
+    id: chat-input
+- assertVisible:
+    id: chat-send
+- assertVisible:
+    id: chat-model-selector
+- tapOn:
+    id: chat-input
+- inputText: "Hello"
+- tapOn:
+    id: chat-send
+- assertVisible:
+    id: chat-error

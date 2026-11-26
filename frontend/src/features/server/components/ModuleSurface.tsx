@@ -1,12 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { ActivityIndicator, Platform, Text, View } from "react-native";
 
-import { slotCatalogue } from "@/shared/components/slots/catalogue";
 import {
   renderableContributions,
   type SlotPlatform,
 } from "@/shared/components/slots/contributions";
 import Slot from "@/shared/components/slots/Slot";
+import { useSlotContext } from "@/shared/components/slots/SlotProvider";
 import { Button, ButtonText } from "@/shared/components/ui/button";
 import useTheme from "@/shared/theme/useTheme";
 
@@ -29,6 +29,7 @@ export default function ModuleSurface() {
   const { data, isError, isLoading, refetch } = useManifest();
   const platform = currentPlatform();
   const { colors } = useTheme();
+  const { catalogue } = useSlotContext();
 
   if (isLoading) {
     return (
@@ -56,7 +57,7 @@ export default function ModuleSurface() {
   }
 
   const mainContributions = data.ui.slots["app.main"] ?? [];
-  const catalogueKeys = new Set(Object.keys(slotCatalogue));
+  const catalogueKeys = new Set(Object.keys(catalogue));
   if (
     renderableContributions(mainContributions, platform, catalogueKeys)
       .length === 0

@@ -27,9 +27,33 @@ services:
       DATABASE_URL: postgres://amibot:amibot@db:5432/amibot
       AMIBOT_SERVER_NAME: Amibot E2E
       AMIBOT_ALLOWED_ORIGINS: http://localhost:8081
+      AMIBOT_CHAT_ENABLED: "false"
       RUST_LOG: info
     ports:
       - "3200:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  server-chat:
+    build:
+      context: ..
+      args:
+        EXPO_PUBLIC_APP_LOCALE: en
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://amibot:amibot@db:5432/amibot
+      AMIBOT_SERVER_NAME: Amibot E2E
+      AMIBOT_ALLOWED_ORIGINS: http://localhost:8081
+      AMIBOT_CHAT_ENABLED: "true"
+      RUST_LOG: info
+    ports:
+      - "3201:3000"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3000/health"]
       interval: 5s

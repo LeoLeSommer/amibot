@@ -7,6 +7,7 @@ import {
 } from "@/lib/api/clientInfo";
 import {
   handleApiError,
+  notifyClientUpdateRequired,
   setClientUpdateRequiredHandler,
   withClientHeaders,
 } from "@/lib/api/clientInterceptors";
@@ -64,6 +65,15 @@ describe("client interceptors", () => {
       handleApiError(axiosLikeError(401, { error: "unauthorized" })),
     ).rejects.toBeInstanceOf(ApiError);
     expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("notifies the update handler for streaming fetch callers", () => {
+    const handler = jest.fn();
+    setClientUpdateRequiredHandler(handler);
+
+    notifyClientUpdateRequired();
+
+    expect(handler).toHaveBeenCalledTimes(1);
   });
 
   it("ignores statuses without a registered handler", async () => {

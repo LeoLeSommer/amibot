@@ -1,8 +1,16 @@
 use std::net::SocketAddr;
 use std::path::PathBuf;
 
+use amibot_settings::{SettingsError, SettingsScope, SettingsStore};
 use axum::http::HeaderValue;
+use serde::Deserialize;
 use thiserror::Error;
+
+pub const DEFAULT_SETTINGS_FILE: &str = "settings.yaml";
+
+const DEFAULT_BIND_ADDR: &str = "0.0.0.0:3000";
+const DEFAULT_SERVER_NAME: &str = "Amibot";
+const DEFAULT_WEB_DIR: &str = "../frontend/dist";
 
 #[derive(Clone)]
 pub struct Config {
@@ -11,6 +19,7 @@ pub struct Config {
     pub server_name: String,
     pub allowed_origins: Vec<String>,
     pub web_dir: PathBuf,
+    pub settings: SettingsStore,
 }
 
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -23,39 +32,66 @@ pub enum ConfigError {
     WildcardOrigin,
     #[error("invalid CORS origin: {0}")]
     InvalidOrigin(String),
+    #[error("settings error: {0}")]
+    Settings(#[from] SettingsError),
+}
+
+/// The typed `server:` section of the root settings file. All values are
+/// strings because `${VAR}` interpolation always yields a YAML string scalar.
+#[derive(Deserialize)]
+struct ServerSettings {
+    database_url: String,
+    bind_addr: String,
+    name: String,
+    allowed_origins: String,
+    web_dir: String,
 }
 
 impl Config {
+    /// Loads the settings file selected by `AMIBOT_SETTINGS_FILE` (default
+    /// `settings.yaml`, relative to the working directory) and resolves its
+    /// `${VAR}` references from the process environment.
     pub fn from_env() -> Result<Self, ConfigError> {
         let _ = dotenvy::dotenv();
-        Self::from_lookup(|key| std::env::var(key).ok())
+        let path = std::env::var("AMIBOT_SETTINGS_FILE")
+            .ok()
+            .filter(|value| !value.trim().is_empty())
+            .unwrap_or_else(|| DEFAULT_SETTINGS_FILE.to_string());
+        let text = std::fs::read_to_string(&path)
+            .map_err(|_| ConfigError::Settings(SettingsError::MissingFile))?;
+        Self::from_sources(&text, |key| std::env::var(key).ok())
     }
 
-    /// Reads configuration through a lookup function so tests can avoid
-    /// mutating the process environment.
-    pub fn from_lookup(lookup: impl Fn(&str) -> Option<String>) -> Result<Self, ConfigError> {
-        let database_url = lookup("DATABASE_URL")
-            .filter(|value| !value.trim().is_empty())
-            .ok_or(ConfigError::Missing("DATABASE_URL"))?;
+    /// Builds configuration from a settings document through an injectable
+    /// lookup, so unit tests stay free of process-environment mutation.
+    pub fn from_sources(
+        yaml: &str,
+        lookup: impl Fn(&str) -> Option<String>,
+    ) -> Result<Self, ConfigError> {
+        let settings = SettingsStore::from_yaml(yaml, lookup)?;
+        Self::from_settings(settings)
+    }
 
-        let bind_addr_text = lookup("AMIBOT_BIND_ADDR")
-            .filter(|value| !value.trim().is_empty())
-            .unwrap_or_else(|| "0.0.0.0:3000".to_string());
+    fn from_settings(settings: SettingsStore) -> Result<Self, ConfigError> {
+        let server: ServerSettings = settings
+            .section(SettingsScope::Root, "server")?
+            .ok_or_else(|| {
+                ConfigError::Settings(SettingsError::InvalidSection("server".to_string()))
+            })?;
+
+        let database_url = server.database_url;
+        if database_url.trim().is_empty() {
+            return Err(ConfigError::Missing("DATABASE_URL"));
+        }
+
+        let bind_addr_text = blank_or(server.bind_addr, DEFAULT_BIND_ADDR);
         let bind_addr = bind_addr_text
             .parse::<SocketAddr>()
-            .map_err(|_| ConfigError::Invalid("AMIBOT_BIND_ADDR", bind_addr_text))?;
+            .map_err(|_| ConfigError::Invalid("AMIBOT_BIND_ADDR", bind_addr_text.clone()))?;
 
-        let server_name = lookup("AMIBOT_SERVER_NAME")
-            .filter(|value| !value.trim().is_empty())
-            .unwrap_or_else(|| "Amibot".to_string());
-
-        let allowed_origins = parse_origins(&lookup("AMIBOT_ALLOWED_ORIGINS").unwrap_or_default())?;
-
-        let web_dir = PathBuf::from(
-            lookup("AMIBOT_WEB_DIR")
-                .filter(|value| !value.trim().is_empty())
-                .unwrap_or_else(|| "../frontend/dist".to_string()),
-        );
+        let server_name = blank_or(server.name, DEFAULT_SERVER_NAME);
+        let allowed_origins = parse_origins(&server.allowed_origins)?;
+        let web_dir = PathBuf::from(blank_or(server.web_dir, DEFAULT_WEB_DIR));
 
         Ok(Self {
             database_url,
@@ -63,7 +99,16 @@ impl Config {
             server_name,
             allowed_origins,
             web_dir,
+            settings,
         })
+    }
+}
+
+fn blank_or(value: String, default: &str) -> String {
+    if value.trim().is_empty() {
+        default.to_string()
+    } else {
+        value
     }
 }
 
@@ -91,8 +136,10 @@ fn parse_origins(value: &str) -> Result<Vec<String>, ConfigError> {
 mod tests {
     use super::*;
 
+    const SETTINGS_YAML: &str = include_str!("../../settings.yaml");
+
     fn config(values: &[(&str, &str)]) -> Result<Config, ConfigError> {
-        Config::from_lookup(|key| {
+        Config::from_sources(SETTINGS_YAML, |key| {
             values
                 .iter()
                 .find(|(name, _)| *name == key)
@@ -107,7 +154,7 @@ mod tests {
 
         assert_eq!(config.bind_addr.to_string(), "0.0.0.0:3000");
         assert_eq!(config.server_name, "Amibot");
-        assert!(config.allowed_origins.is_empty());
+        assert_eq!(config.allowed_origins, ["http://localhost:8081"]);
         assert_eq!(config.web_dir, PathBuf::from("../frontend/dist"));
     }
 
@@ -150,11 +197,40 @@ mod tests {
     }
 
     #[test]
-    fn requires_a_database_url() {
+    fn requires_a_database_url_variable() {
         assert_eq!(
             config(&[]).err().expect("database URL is required"),
+            ConfigError::Settings(SettingsError::UnresolvedVariable(
+                "DATABASE_URL".to_string()
+            ))
+        );
+    }
+
+    #[test]
+    fn rejects_a_blank_database_url() {
+        assert_eq!(
+            config(&[("DATABASE_URL", "  ")])
+                .err()
+                .expect("blank database URL rejected"),
             ConfigError::Missing("DATABASE_URL")
         );
+    }
+
+    #[test]
+    fn exposes_the_settings_store_for_modules() {
+        #[derive(Deserialize)]
+        struct ChatSection {
+            enabled: String,
+        }
+
+        let config = config(&[("DATABASE_URL", "postgres://amibot:amibot@db/amibot")])
+            .expect("config parses");
+        let chat: Option<ChatSection> = config
+            .settings
+            .section(SettingsScope::Root, "chat")
+            .expect("chat section loads");
+
+        assert_eq!(chat.expect("chat section present").enabled, "true");
     }
 
     #[test]

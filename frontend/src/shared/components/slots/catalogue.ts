@@ -6,12 +6,12 @@ export type SlotComponentProps = {
   contributionId: string;
 };
 
+export type SlotCatalogue = Record<string, ComponentType<SlotComponentProps>>;
+
 /**
  * Components that modules may reference from their UI contributions. The
  * catalogue is intentionally empty in the skeleton and grows with generic,
  * module-agnostic components only. Never load components from a remote URL.
+ * Module-specific catalogues are merged in the app composition root.
  */
-export const slotCatalogue: Record<
-  string,
-  ComponentType<SlotComponentProps>
-> = {};
+export const slotCatalogue: SlotCatalogue = {};

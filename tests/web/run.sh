@@ -10,7 +10,7 @@ FLOW="home-empty"
 KEEP=0
 
 usage() {
-    printf 'Usage: %s [--flow <name>] [--keep]\n' "$0"
+    printf 'Usage: %s [--flow <name>] [--chat] [--keep]\n' "$0"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -18,6 +18,11 @@ while [[ $# -gt 0 ]]; do
         --flow)
             FLOW="${2:?--flow requires a value}"
             shift 2
+            ;;
+        --chat)
+            BASE_URL="http://localhost:3201"
+            FLOW="chat"
+            shift
             ;;
         --keep)
             KEEP=1

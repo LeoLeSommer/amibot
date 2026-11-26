@@ -4,19 +4,25 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 COMPOSE_FILE="$ROOT_DIR/tests/docker-compose.test.yml"
 HURL_DIR="$ROOT_DIR/tests/api/hurl"
+CHAT_DIR="$ROOT_DIR/tests/api/hurl-chat"
 PROJECT_NAME="amibot-e2e"
 BASE_URL="${BASE_URL:-}"
+CHAT=0
 KEEP=0
 START_STACK=1
 
 usage() {
-    printf 'Usage: %s [--keep] [--base-url <url>]\n' "$0"
+    printf 'Usage: %s [--keep] [--chat] [--base-url <url>]\n' "$0"
 }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --keep)
             KEEP=1
+            shift
+            ;;
+        --chat)
+            CHAT=1
             shift
             ;;
         --base-url)
@@ -57,6 +63,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
+dump_logs() {
+    if [[ "$START_STACK" -eq 1 ]]; then
+        docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs --no-color "$1" || true
+    fi
+}
+
 if [[ "$START_STACK" -eq 1 ]]; then
     docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up -d --build --wait
 else
@@ -67,8 +79,15 @@ if ! hurl --test \
     --variables-file "$HURL_DIR/fixtures.env" \
     --variable "base_url=$BASE_URL" \
     "$HURL_DIR"/*.hurl; then
-    if [[ "$START_STACK" -eq 1 ]]; then
-        docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs --no-color server || true
-    fi
+    dump_logs server
     exit 1
+fi
+
+if [[ "$CHAT" -eq 1 ]]; then
+    if ! hurl --test \
+        --variables-file "$CHAT_DIR/fixtures.env" \
+        "$CHAT_DIR"/*.hurl; then
+        dump_logs server-chat
+        exit 1
+    fi
 fi

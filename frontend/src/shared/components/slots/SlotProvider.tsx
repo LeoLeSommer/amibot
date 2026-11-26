@@ -1,29 +1,26 @@
-import {
-  createContext,
-  useContext,
-  type ComponentType,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, type ReactNode } from "react";
 
-import { slotCatalogue, type SlotComponentProps } from "./catalogue";
+import { slotCatalogue, type SlotCatalogue } from "./catalogue";
 import type { SlotMap } from "./contributions";
 
 export type SlotContextValue = {
   slots: SlotMap;
-  catalogue: Record<string, ComponentType<SlotComponentProps>>;
+  catalogue: SlotCatalogue;
 };
 
 const SlotContext = createContext<SlotContextValue | null>(null);
 
 export function SlotProvider({
   slots,
+  catalogue = slotCatalogue,
   children,
 }: {
   slots: SlotMap;
+  catalogue?: SlotCatalogue;
   children: ReactNode;
 }) {
   return (
-    <SlotContext.Provider value={{ slots, catalogue: slotCatalogue }}>
+    <SlotContext.Provider value={{ slots, catalogue }}>
       {children}
     </SlotContext.Provider>
   );

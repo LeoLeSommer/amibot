@@ -25,7 +25,7 @@ pub async fn run() -> Result<()> {
         .await
         .context("failed to run database migrations")?;
 
-    let modules = registry::modules();
+    let modules = registry::modules(&config.settings)?;
     let mut module_registry = ModuleRegistry::new();
     for module in &modules {
         let module: Arc<dyn Module> = module.clone();
