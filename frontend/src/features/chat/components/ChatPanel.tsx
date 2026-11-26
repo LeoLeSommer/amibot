@@ -129,13 +129,24 @@ export default function ChatPanel() {
     }
   };
 
-  const renderItem: ConversationRenderItem = ({ item, index }) => (
-    <Message role={item.role} index={index} message={item}>
-      <MessageContent>
-        <MessageResponse message={item} thinkingLabel={t("chat.thinking")} />
-      </MessageContent>
-    </Message>
-  );
+  const renderItem: ConversationRenderItem = ({ item, index }) => {
+    const isStreaming =
+      status === "streaming" &&
+      index === messages.length - 1 &&
+      item.role === "assistant";
+
+    return (
+      <Message role={item.role} index={index} message={item}>
+        <MessageContent>
+          <MessageResponse
+            message={item}
+            streaming={isStreaming}
+            thinkingLabel={t("chat.thinking")}
+          />
+        </MessageContent>
+      </Message>
+    );
+  };
 
   return (
     <View

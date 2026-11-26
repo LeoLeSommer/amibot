@@ -19,6 +19,13 @@ export const Fonts = {
   displayBold: "Archivo-Bold",
 } as const;
 
+export const Motion = {
+  fast: 120,
+  base: 180,
+  slow: 240,
+  ease: [0.2, 0, 0, 1] as const,
+} as const;
+
 export const themeNames = ["default", "ocean", "forest"] as const;
 export type ThemeName = (typeof themeNames)[number];
 

@@ -20,7 +20,9 @@ import Markdown from "react-native-markdown-display";
 import Animated from "react-native-reanimated";
 
 import { Fonts } from "@/constants/theme";
+import WordsPullUp from "@/shared/components/motion/WordsPullUp";
 import { gradientStyle, shadowStyle } from "@/shared/theme/depthStyles";
+import useAccessibilityPreferences from "@/shared/theme/useAccessibilityPreferences";
 import useTheme from "@/shared/theme/useTheme";
 
 import { useBlankSize } from "./useBlank";
@@ -161,13 +163,16 @@ export const MessageContent = memo(function MessageContent({
 export type MessageResponseProps = {
   message: UIMessage;
   thinkingLabel?: string;
+  streaming?: boolean;
 };
 
 export const MessageResponse = memo(function MessageResponse({
   message,
   thinkingLabel = "Thinking...",
+  streaming = false,
 }: MessageResponseProps) {
   const { colors } = useTheme();
+  const { reduceMotion } = useAccessibilityPreferences();
 
   const markdownStyle = useMemo(
     () =>
@@ -349,6 +354,17 @@ export const MessageResponse = memo(function MessageResponse({
     <View className="gap-2">
       {message.parts.map((part, index) => {
         if (part.type === "text") {
+          if (streaming) {
+            return (
+              <WordsPullUp
+                key={index}
+                text={part.text || ""}
+                textStyle={markdownStyle.body}
+                enabled={!reduceMotion}
+              />
+            );
+          }
+
           return (
             <Markdown key={index} style={markdownStyle}>
               {part.text || ""}
